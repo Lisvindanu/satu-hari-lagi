@@ -1,0 +1,938 @@
+{
+  "intro": {
+    "id": "intro",
+    "background": "cafe-siang",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu duduk di coffee shop yang sama. Lagi." },
+      { "speaker": "narasi", "text": "Laptop terbuka. Kursor berkedip di VS Code. Proyek yang sama. Deadline yang sama." },
+      { "speaker": "narasi", "text": "Di luar, langit Bandung abu-abu seperti biasa. Jam di pojok layar: 13:00." },
+      { "speaker": "narasi", "text": "Rasanya kamu sudah pernah duduk di sini sebelumnya. Berkali-kali." }
+    ],
+    "choices": [
+      { "text": "Pesan kopi dulu", "nextNode": "pesan-kopi", "timeCost": 15 },
+      { "text": "Fokus ngerjain proyek", "nextNode": "fokus-proyek", "timeCost": 30 },
+      { "text": "Lihat sekeliling kafe", "nextNode": "lihat-sekeliling", "timeCost": 10 },
+      { "text": "\"...Ini lagi. Aku bosan.\"", "nextNode": "penyangkalan-scene", "timeCost": 0, "requiresClue": "deep-awareness" },
+      { "text": "Langsung lari ke perempatan", "nextNode": "perempatan-awal", "timeCost": 90, "requiresClue": "seen-terlambat", "givesClue": "tau-harus-ke-perempatan" }
+    ]
+  },
+
+  "pesan-kopi": {
+    "id": "pesan-kopi",
+    "background": "cafe-siang",
+    "character": "raka-normal",
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu berjalan ke counter. Barista di balik mesin espresso menoleh." },
+      { "speaker": "Raka", "text": "Eh, dateng lagi! Biasa ya? Americano?" },
+      { "speaker": "narasi", "text": "'Dateng lagi'. Padahal kamu merasa baru pertama kali ke sini hari ini." }
+    ],
+    "choices": [
+      { "text": "\"Iya, biasa aja.\"", "nextNode": "kopi-biasa", "timeCost": 10 },
+      { "text": "\"Lagi? Maksudnya?\"", "nextNode": "kopi-tanya", "timeCost": 10, "givesClue": "raka-ingat-loop" },
+      {
+        "text": "\"Kamu... inget aku dateng sebelumnya?\"",
+        "nextNode": "kopi-konfrontasi",
+        "timeCost": 15,
+        "requiresClue": "raka-ingat-loop",
+        "givesClue": "raka-tau-sesuatu"
+      }
+    ]
+  },
+
+  "kopi-biasa": {
+    "id": "kopi-biasa",
+    "background": "cafe-siang",
+    "character": "raka-senyum",
+    "lines": [
+      { "speaker": "Raka", "text": "Sip! Americano satu. Duduk dulu ya, nanti gue anterin." },
+      { "speaker": "narasi", "text": "Kamu kembali ke meja. Kopinya datang 5 menit kemudian. Hangat. Pahit. Familiar." }
+    ],
+    "choices": [
+      { "text": "Fokus ngerjain proyek", "nextNode": "fokus-proyek", "timeCost": 30 },
+      { "text": "Lihat sekeliling kafe", "nextNode": "lihat-sekeliling", "timeCost": 10 }
+    ]
+  },
+
+  "kopi-tanya": {
+    "id": "kopi-tanya",
+    "background": "cafe-siang",
+    "character": "raka-bingung",
+    "lines": [
+      { "speaker": "Raka", "text": "Hah? Ya... lu dateng tadi siang kan? Pesennya juga Americano." },
+      { "speaker": "narasi", "text": "Kamu yakin baru datang. Tapi Raka kelihatan serius." },
+      { "speaker": "Raka", "text": "Kok bingung sih? Lu bahkan duduk di meja yang sama. Haha." },
+      { "speaker": "narasi", "text": "Ada yang tidak beres. Kamu menyimpan informasi ini." }
+    ],
+    "choices": [
+      { "text": "Duduk kembali, pikirkan ini", "nextNode": "fokus-proyek", "timeCost": 20 },
+      { "text": "Tanya lebih lanjut ke Raka", "nextNode": "raka-lanjut", "timeCost": 15 }
+    ]
+  },
+
+  "kopi-konfrontasi": {
+    "id": "kopi-konfrontasi",
+    "background": "cafe-siang",
+    "character": "raka-serius",
+    "lines": [
+      { "speaker": "narasi", "text": "Raka berhenti mengusap gelas. Tangannya diam." },
+      { "speaker": "Raka", "text": "...Lu nanya serius nih?" },
+      { "speaker": "Raka", "text": "Oke. Gue... gue ga tau cara jelasinnya. Tapi lu udah dateng ke sini. Berkali-kali." },
+      { "speaker": "Raka", "text": "Dan setiap kali, jam tiga sore, ada suara tabrakan dari jalan. Terus lu... ilang." },
+      { "speaker": "narasi", "text": "Jantungmu berdebar. Ini bukan deja vu biasa." }
+    ],
+    "choices": [
+      { "text": "\"Siapa yang kecelakaan?\"", "nextNode": "raka-siapa", "timeCost": 10, "givesClue": "kecelakaan-jam-3" },
+      { "text": "\"Kenapa cuma lu yang inget?\"", "nextNode": "raka-kenapa-ingat", "timeCost": 10 }
+    ]
+  },
+
+  "raka-lanjut": {
+    "id": "raka-lanjut",
+    "background": "cafe-siang",
+    "character": "raka-bingung",
+    "lines": [
+      { "speaker": "Raka", "text": "Lu kenapa sih? Serius amat mukanya." },
+      { "speaker": "Raka", "text": "Udah, minum aja dulu kopinya. Nanti juga inget." },
+      { "speaker": "narasi", "text": "Raka kembali sibuk. Tapi kamu menangkap sesuatu — matanya menghindari kontak." }
+    ],
+    "choices": [
+      { "text": "Kembali ke meja", "nextNode": "fokus-proyek", "timeCost": 15 },
+      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 }
+    ]
+  },
+
+  "raka-siapa": {
+    "id": "raka-siapa",
+    "background": "cafe-siang",
+    "character": "raka-serius",
+    "lines": [
+      { "speaker": "narasi", "text": "Raka menelan ludah." },
+      { "speaker": "Raka", "text": "Gue ga pernah liat langsung. Tapi... suaranya keras banget. Ban mendecit. Klakson. Terus hening." },
+      { "speaker": "Raka", "text": "Yang gue tau, setiap kali itu terjadi, lu ga ada lagi di meja itu." },
+      { "speaker": "narasi", "text": "Kamu merasa dingin meskipun kafe ini hangat." }
+    ],
+    "choices": [
+      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 },
+      { "text": "Keluar kafe, cek jalanan", "nextNode": "cek-jalan", "timeCost": 20 }
+    ]
+  },
+
+  "raka-kenapa-ingat": {
+    "id": "raka-kenapa-ingat",
+    "background": "cafe-siang",
+    "character": "raka-serius",
+    "lines": [
+      { "speaker": "Raka", "text": "...Gue juga ga tau." },
+      { "speaker": "Raka", "text": "Mungkin karena gue yang bikin kopinya. Mungkin karena gue selalu di sini." },
+      { "speaker": "Raka", "text": "Atau mungkin... gue juga terjebak." },
+      { "speaker": "narasi", "text": "Matanya terlihat lelah. Lebih lelah dari seharusnya untuk seorang barista siang hari." }
+    ],
+    "choices": [
+      { "text": "\"Berapa kali ini sudah terjadi?\"", "nextNode": "raka-berapa-kali", "timeCost": 10, "givesClue": "banyak-loop" },
+      { "text": "Lihat sosok di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 }
+    ]
+  },
+
+  "raka-berapa-kali": {
+    "id": "raka-berapa-kali",
+    "background": "cafe-siang",
+    "character": "raka-serius",
+    "lines": [
+      { "speaker": "narasi", "text": "Raka diam sebentar. Dia mengambil napas dalam." },
+      { "speaker": "Raka", "text": "Gue berhenti ngitung setelah yang ke-tujuh belas." },
+      { "speaker": "Raka", "text": "Dan setiap kali, jam tiga, truk yang sama. Suara yang sama." }
+    ],
+    "choices": [
+      { "text": "\"Truk apa?\"", "nextNode": "cek-jalan", "timeCost": 15, "givesClue": "kecelakaan-jam-3" },
+      { "text": "Lihat sosok di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 },
+      { "text": "Keluar kafe, cek jalanan", "nextNode": "cek-jalan", "timeCost": 20 }
+    ]
+  },
+
+  "fokus-proyek": {
+    "id": "fokus-proyek",
+    "background": "cafe-siang",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu membuka laptop. Kode yang sama. Error yang sama. Console merah menyala." },
+      { "speaker": "narasi", "text": "30 menit berlalu. Kamu tidak menyelesaikan apa-apa." },
+      { "speaker": "narasi", "text": "Tapi di antara baris-baris kode, kamu menyadari sesuatu di terminal:" },
+      { "speaker": "narasi", "text": "\"SEGFAULT at 15:00:00 — process terminated. Restarting...\"" },
+      { "speaker": "narasi", "text": "Itu bukan error dari proyekmu." }
+    ],
+    "choices": [
+      { "text": "Periksa terminal lebih lanjut", "nextNode": "terminal-clue", "timeCost": 15, "givesClue": "segfault-clue" },
+      { "text": "Abaikan, lanjut coding", "nextNode": "abaikan-coding", "timeCost": 30 },
+      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 },
+      { "text": "Tutup laptop. Berhenti.", "nextNode": "acceptance-scene", "timeCost": 0, "requiresClue": "deep-awareness" }
+    ]
+  },
+
+  "terminal-clue": {
+    "id": "terminal-clue",
+    "background": "cafe-siang",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu scroll ke atas. Ada log yang bukan bagian dari proyekmu:" },
+      { "speaker": "narasi", "text": "\"[13:00] Loop initialized. Subject: active. Observer: standby.\"" },
+      { "speaker": "narasi", "text": "\"[14:30] Rain trigger: confirmed. Countdown: 30 min.\"" },
+      { "speaker": "narasi", "text": "\"[15:00] Collision event. Loop reset.\"" },
+      { "speaker": "narasi", "text": "Ini bukan log dari aplikasimu. Ini log dari sesuatu yang menjalankan... ini." }
+    ],
+    "choices": [
+      { "text": "Tunjukkan ke orang di sudut kafe", "nextNode": "tunjuk-sosok-terminal", "timeCost": 10, "requiresClue": "segfault-clue" },
+      { "text": "Pesan kopi, tenangkan diri", "nextNode": "pesan-kopi", "timeCost": 15 },
+      { "text": "Keluar kafe, cek jalanan", "nextNode": "cek-jalan", "timeCost": 20 },
+      { "text": "Coba modifikasi log-nya", "nextNode": "hack-terminal", "timeCost": 20, "requiresClue": "loop-awareness" }
+    ]
+  },
+
+  "abaikan-coding": {
+    "id": "abaikan-coding",
+    "background": "cafe-mendung",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu memaksakan diri coding. Satu jam berlalu tanpa progres berarti." },
+      { "speaker": "narasi", "text": "Di luar, awan semakin gelap. Jam menunjukkan 14:30." },
+      { "speaker": "narasi", "text": "Hujan mulai turun. Tetes pertama mengenai kaca jendela di sebelahmu." },
+      { "speaker": "narasi", "text": "Perasaanmu tidak enak. Waktu terasa berjalan lebih cepat sekarang." }
+    ],
+    "choices": [
+      { "text": "Lihat sekeliling kafe", "nextNode": "lihat-sekeliling-sore", "timeCost": 10 },
+      { "text": "Tetap coding sampai selesai", "nextNode": "menuju-kematian", "timeCost": 30 }
+    ]
+  },
+
+  "lihat-sekeliling": {
+    "id": "lihat-sekeliling",
+    "background": "cafe-siang",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kafe ini kecil tapi nyaman. 6 meja, sebagian besar kosong." },
+      { "speaker": "narasi", "text": "Di counter, barista bernama Raka sedang mengusap gelas." },
+      { "speaker": "narasi", "text": "Di sudut belakang, ada seseorang berjaket tebal — aneh untuk cuaca siang. Dia sibuk main game di HP-nya." },
+      { "speaker": "narasi", "text": "Musik lo-fi mengalun pelan dari speaker kafe." }
+    ],
+    "choices": [
+      { "text": "Hampiri barista", "nextNode": "pesan-kopi", "timeCost": 10 },
+      { "text": "Dekati orang berjaket", "nextNode": "lihat-sosok", "timeCost": 10 },
+      { "text": "Fokus ngerjain proyek", "nextNode": "fokus-proyek", "timeCost": 30 },
+      { "text": "Keluar, jalan ke perempatan depan", "nextNode": "perempatan-menunggu", "timeCost": 15 }
+    ]
+  },
+
+  "lihat-sekeliling-sore": {
+    "id": "lihat-sekeliling-sore",
+    "background": "cafe-mendung",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kafe terasa berbeda sekarang. Lebih gelap. Hujan makin deras." },
+      { "speaker": "narasi", "text": "Raka di balik counter, tangannya berhenti. Dia menatap ke luar jendela." },
+      { "speaker": "narasi", "text": "Orang berjaket di sudut sudah menaruh HP-nya. Dia menatapmu." }
+    ],
+    "choices": [
+      { "text": "Dekati orang berjaket", "nextNode": "sosok-sore", "timeCost": 10 },
+      { "text": "Tanya Raka kenapa dia diam", "nextNode": "raka-sore", "timeCost": 10 }
+    ]
+  },
+
+  "lihat-sosok": {
+    "id": "lihat-sosok",
+    "background": "cafe-siang",
+    "character": "sosok-diam",
+    "lines": [
+      { "speaker": "narasi", "text": "Orang itu duduk di sudut paling gelap. Jaket tebal, hoodie menutupi sebagian wajah." },
+      { "speaker": "narasi", "text": "Di tangannya, HP menyala — dia sedang bermain game MOBA. Terdengar suara skill dan efek dari speaker HP-nya." },
+      { "speaker": "narasi", "text": "Kamu duduk di sebelahnya. Dia tidak mengangkat muka." },
+      { "speaker": "???", "text": "...Ranked lagi susah hari ini." }
+    ],
+    "choices": [
+      { "text": "\"Lu main apa?\"", "nextNode": "sosok-game", "timeCost": 10 },
+      { "text": "\"Kita pernah ketemu sebelumnya?\"", "nextNode": "sosok-kenal", "timeCost": 10, "requiresClue": "raka-ingat-loop" },
+      {
+        "text": "Tunjukkan log terminal",
+        "nextNode": "tunjuk-sosok-terminal",
+        "timeCost": 10,
+        "requiresClue": "segfault-clue"
+      }
+    ]
+  },
+
+  "sosok-game": {
+    "id": "sosok-game",
+    "background": "cafe-siang",
+    "character": "sosok-diam",
+    "lines": [
+      { "speaker": "???", "text": "HoK. Honor of Kings. Lu main?" },
+      { "speaker": "narasi", "text": "Dia masih fokus ke layar." },
+      { "speaker": "???", "text": "Game ini lucu ya. Setiap match, lu spawn ulang di base. Mati, respawn. Mati lagi, respawn lagi." },
+      { "speaker": "???", "text": "Tapi match-nya pasti selesai. Ada time limit." },
+      { "speaker": "???", "text": "...Beda sama kita." },
+      { "speaker": "narasi", "text": "Dia bilang 'kita'. Kamu tidak melewatkan itu." }
+    ],
+    "choices": [
+      { "text": "\"Maksud lu 'kita'?\"", "nextNode": "sosok-kita", "timeCost": 10, "givesClue": "sosok-tau-loop" },
+      { "text": "\"Lu tau soal kecelakaan jam 3?\"", "nextNode": "sosok-tau-kecelakaan", "timeCost": 10, "requiresClue": "loop-awareness", "givesClue": "kecelakaan-jam-3" },
+      { "text": "Kembali ke meja", "nextNode": "fokus-proyek", "timeCost": 15 }
+    ]
+  },
+
+  "sosok-kenal": {
+    "id": "sosok-kenal",
+    "background": "cafe-siang",
+    "character": "sosok-menyeringai",
+    "lines": [
+      { "speaker": "narasi", "text": "Untuk pertama kalinya, dia mengangkat muka. Setengah senyum." },
+      { "speaker": "???", "text": "Oh. Kali ini lu sadar lebih cepet." },
+      { "speaker": "???", "text": "Biasanya lu baru nanya itu jam setengah tiga. Pas udah mau telat." },
+      { "speaker": "narasi", "text": "Dia menaruh HP-nya. Game di-pause." },
+      { "speaker": "???", "text": "Duduk. Gue cuma bisa jelasin ini sekali sebelum hujan turun." }
+    ],
+    "choices": [
+      { "text": "Duduk dan dengarkan", "nextNode": "sosok-penjelasan", "timeCost": 15, "givesClue": "sosok-tau-loop" }
+    ]
+  },
+
+  "sosok-kita": {
+    "id": "sosok-kita",
+    "background": "cafe-siang",
+    "character": "sosok-menyeringai",
+    "lines": [
+      { "speaker": "???", "text": "Lu belum sadar ya?" },
+      { "speaker": "???", "text": "Coba inget. Jam berapa lu dateng ke sini?" },
+      { "speaker": "narasi", "text": "Jam 13:00. Kamu yakin." },
+      { "speaker": "???", "text": "Dan sekarang jam berapa?" },
+      { "speaker": "narasi", "text": "Kamu melihat jam. Waktu terus berjalan." },
+      { "speaker": "???", "text": "Jam tiga nanti, dengerin baik-baik suara dari jalanan. Dan setelah itu... kita mulai lagi." }
+    ],
+    "choices": [
+      { "text": "\"Mulai lagi? Gimana cara berhentiin ini?\"", "nextNode": "sosok-penjelasan", "timeCost": 15, "givesClue": "cara-berhenti" },
+      { "text": "\"Tunggu. Lu itu siapa sebenernya?\"", "nextNode": "sosok-identitas", "timeCost": 10, "requiresClue": "loop-awareness" },
+      { "text": "Keluar kafe, cek jalanan sekarang", "nextNode": "cek-jalan", "timeCost": 20 }
+    ]
+  },
+
+  "sosok-penjelasan": {
+    "id": "sosok-penjelasan",
+    "background": "cafe-siang",
+    "character": "sosok-menyeringai",
+    "lines": [
+      { "speaker": "???", "text": "Oke. Singkat aja." },
+      { "speaker": "???", "text": "Jam 3 sore, ada kecelakaan di perempatan depan. Setiap hari. Hari yang sama." },
+      { "speaker": "???", "text": "Yang ketabrak itu... bukan orang random." },
+      { "speaker": "???", "text": "Dan selama lu masih duduk di sini, loop ini ga akan berhenti." },
+      { "speaker": "narasi", "text": "Dia menatapmu langsung. Untuk pertama kalinya kamu melihat wajahnya dengan jelas." },
+      { "speaker": "narasi", "text": "Dia terlihat... familiar. Sangat familiar." },
+      { "speaker": "???", "text": "Lu harus keluar dari kafe ini sebelum jam tiga. Dan lu harus ada di perempatan itu." },
+      { "speaker": "???", "text": "Bukan buat nonton. Buat mencegah." }
+    ],
+    "choices": [
+      {
+        "text": "Pergi ke perempatan sekarang",
+        "nextNode": "perempatan-awal",
+        "timeCost": 15,
+        "requiresClue": "cara-berhenti",
+        "givesClue": "tau-harus-ke-perempatan"
+      },
+      { "text": "\"Siapa yang ketabrak?\"", "nextNode": "sosok-siapa-korban", "timeCost": 5, "givesClue": "identitas-korban" },
+      { "text": "\"Siapa lu sebenernya?\"", "nextNode": "sosok-identitas", "timeCost": 5 },
+      { "text": "\"Gue ga mau pergi. Gue mau tetap di sini.\"", "nextNode": "tetap-di-kafe-final", "timeCost": 0, "requiresClue": "loop-awareness" },
+      { "text": "\"Bikinin kopi terakhir dulu, Ra.\"", "nextNode": "kopi-terakhir-scene", "timeCost": 10, "requiresClue": "raka-tau-sesuatu" }
+    ]
+  },
+
+  "sosok-siapa-korban": {
+    "id": "sosok-siapa-korban",
+    "background": "cafe-siang",
+    "character": "sosok-diam",
+    "lines": [
+      { "speaker": "narasi", "text": "Dia diam lama. Lalu bicara pelan." },
+      { "speaker": "???", "text": "Lu." },
+      { "speaker": "???", "text": "Yang ketabrak itu lu." }
+    ],
+    "choices": [
+      { "text": "\"...\"", "nextNode": "perempatan-awal", "timeCost": 10, "givesClue": "tau-harus-ke-perempatan" }
+    ]
+  },
+
+  "sosok-identitas": {
+    "id": "sosok-identitas",
+    "background": "cafe-siang",
+    "character": "sosok-menyeringai",
+    "lines": [
+      { "speaker": "narasi", "text": "Dia tersenyum. Bukan senyum senang — senyum lelah." },
+      { "speaker": "???", "text": "Gue? Gue itu lu. Dari loop yang ke-sekian." },
+      { "speaker": "???", "text": "Lu yang udah nyerah, tapi ga bisa pergi. Jadi gue duduk di sini. Main game. Nunggu lu sadar sendiri." },
+      { "speaker": "narasi", "text": "Kamu menatap wajahnya lagi. Dan sekarang kamu mengerti kenapa dia familiar." }
+    ],
+    "choices": [
+      { "text": "Pergi ke perempatan", "nextNode": "perempatan-awal", "timeCost": 10, "givesClue": "tau-harus-ke-perempatan" },
+      { "text": "\"Kalau lu itu gue... siapa yang lain?\"", "nextNode": "dua-sosok-meet", "timeCost": 10, "requiresClue": "loop-awareness" }
+    ]
+  },
+
+  "tunjuk-sosok-terminal": {
+    "id": "tunjuk-sosok-terminal",
+    "background": "cafe-siang",
+    "character": "sosok-menyeringai",
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu menunjukkan layar laptop. Log aneh itu." },
+      { "speaker": "narasi", "text": "Untuk pertama kalinya, orang itu terlihat terkejut." },
+      { "speaker": "???", "text": "...Lu nemuin ini di terminal lu?" },
+      { "speaker": "???", "text": "Baru kali ini ada yang nemuin log itu. Biasanya lu kelewat." },
+      { "speaker": "???", "text": "Oke. Berarti kali ini beda. Lu mungkin bisa beneran keluar." },
+      { "speaker": "???", "text": "Dengerin. Jam tiga, ada tabrakan di perempatan depan. Yang ketabrak itu lu sendiri." },
+      { "speaker": "???", "text": "Lu harus ke sana sebelum itu terjadi. Dan lu harus pilih: mundur dari zebra cross, atau dorong orang yang bakal nabrak lu ke trotoar." }
+    ],
+    "choices": [
+      { "text": "Pergi ke perempatan sekarang", "nextNode": "perempatan-awal", "timeCost": 10, "givesClue": "tau-harus-ke-perempatan" }
+    ]
+  },
+
+  "sosok-tau-kecelakaan": {
+    "id": "sosok-tau-kecelakaan",
+    "background": "cafe-siang",
+    "character": "sosok-menyeringai",
+    "lines": [
+      { "speaker": "narasi", "text": "Dia berhenti main. Layar HP-nya mati." },
+      { "speaker": "???", "text": "...Lu udah tau?" },
+      { "speaker": "???", "text": "Jam tiga. Perempatan depan. Truk box putih." },
+      { "speaker": "???", "text": "Setiap hari yang sama. Rute yang sama. Korban yang sama." },
+      { "speaker": "???", "text": "Tapi lu pernah liat truknya dari dekat? Ada gang kecil di sebelah kanan perempatan." },
+      { "speaker": "???", "text": "Truknya selalu parkir di sana sebelum jam tiga. Mesin nyala. Ga ada sopir." },
+      { "speaker": "narasi", "text": "Matanya menatapmu. Seolah menunggu kamu menyimpulkan sendiri." },
+      { "speaker": "???", "text": "Coba lu cek sendiri." }
+    ],
+    "choices": [
+      { "text": "Keluar, cek gang di perempatan", "nextNode": "cek-jalan", "timeCost": 15 },
+      { "text": "\"Siapa sopirnya?\"", "nextNode": "truk-discovery", "timeCost": 15 }
+    ]
+  },
+
+  "cek-jalan": {
+    "id": "cek-jalan",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu keluar kafe. Udara Bandung lembab, langit makin gelap." },
+      { "speaker": "narasi", "text": "Perempatan ada sekitar 50 meter dari kafe. Lampu merah biasa, penyeberangan biasa." },
+      { "speaker": "narasi", "text": "Tapi kamu perhatikan sesuatu: ada bekas rem yang panjang di aspal. Hitam. Dalam." },
+      { "speaker": "narasi", "text": "Bekas itu terlihat baru. Atau mungkin... selalu baru." }
+    ],
+    "choices": [
+      { "text": "Tunggu di perempatan", "nextNode": "perempatan-awal", "timeCost": 15 },
+      { "text": "Kembali ke kafe", "nextNode": "lihat-sekeliling-sore", "timeCost": 10 },
+      { "text": "Periksa truk di gang sebelah", "nextNode": "truk-discovery", "timeCost": 15, "requiresClue": "kecelakaan-jam-3" },
+      { "text": "Berdiri di sini. Menunggu.", "nextNode": "ending-kekosongan", "timeCost": 0 }
+    ]
+  },
+
+  "raka-sore": {
+    "id": "raka-sore",
+    "background": "cafe-mendung",
+    "character": "raka-serius",
+    "lines": [
+      { "speaker": "narasi", "text": "Raka berdiri di balik counter, menatap hujan." },
+      { "speaker": "Raka", "text": "Udah mau jam tiga." },
+      { "speaker": "narasi", "text": "Suaranya datar. Seperti orang yang sudah terlalu sering menunggu sesuatu yang buruk." },
+      { "speaker": "Raka", "text": "Kalau lu mau pergi, pergi sekarang. Jangan tunggu sampe kedengeran." }
+    ],
+    "choices": [
+      { "text": "Keluar ke perempatan", "nextNode": "perempatan-awal", "timeCost": 10 },
+      { "text": "Tetap di kafe", "nextNode": "menuju-kematian", "timeCost": 20 }
+    ]
+  },
+
+  "sosok-sore": {
+    "id": "sosok-sore",
+    "background": "cafe-mendung",
+    "character": "sosok-diam",
+    "lines": [
+      { "speaker": "???", "text": "Lu masih di sini?" },
+      { "speaker": "???", "text": "Waktu lu tinggal sedikit. Pergi. Sekarang." },
+      { "speaker": "narasi", "text": "Dia kembali menatap HP-nya. Match baru dimulai." },
+      { "speaker": "???", "text": "Gue ga bisa ikut. Tapi lu bisa." }
+    ],
+    "choices": [
+      { "text": "Lari ke perempatan", "nextNode": "perempatan-awal", "timeCost": 5 }
+    ]
+  },
+
+  "perempatan-awal": {
+    "id": "perempatan-awal",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu berdiri di tepi perempatan. Hujan mengguyur." },
+      { "speaker": "narasi", "text": "Lampu merah. Beberapa orang menunggu untuk menyeberang." },
+      { "speaker": "narasi", "text": "Di antara mereka, kamu melihat seseorang yang terlihat persis sepertimu. Jaket yang sama. Tas yang sama." },
+      { "speaker": "narasi", "text": "Dia menatap HP, tidak memperhatikan jalan." },
+      { "speaker": "narasi", "text": "Dari kejauhan, terdengar suara mesin yang semakin keras. Sebuah truk melaju terlalu cepat." },
+      { "speaker": "narasi", "text": "Lampu berubah hijau. 'Kamu yang lain' mulai menyeberang." }
+    ],
+    "choices": [
+      {
+        "text": "TARIK DIA KE TROTOAR",
+        "nextNode": "ending-selamat",
+        "timeCost": 0,
+        "requiresClue": "tau-harus-ke-perempatan"
+      },
+      {
+        "text": "DORONG DIA KE TROTOAR",
+        "nextNode": "ending-pengganti",
+        "timeCost": 0,
+        "requiresClue": "tau-harus-ke-perempatan"
+      },
+      {
+        "text": "TERIAK \"AWAS!\"",
+        "nextNode": "ending-terlambat",
+        "timeCost": 0
+      },
+      {
+        "text": "Lari ke tengah jalan bersamanya",
+        "nextNode": "ending-paradoks",
+        "timeCost": 0,
+        "requiresClue": "deep-awareness"
+      },
+      {
+        "text": "Diam, terlalu shock",
+        "nextNode": "menuju-kematian",
+        "timeCost": 0
+      },
+      {
+        "text": "Duduk di trotoar. Berhenti melawan.",
+        "nextNode": "ending-acceptance",
+        "timeCost": 0,
+        "requiresClue": "deep-awareness"
+      }
+    ]
+  },
+
+  "menuju-kematian": {
+    "id": "menuju-kematian",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Jam 15:00." },
+      { "speaker": "narasi", "text": "Dari arah perempatan, terdengar suara ban mendecit." },
+      { "speaker": "narasi", "text": "Klakson panjang. Suara benturan. Keras." },
+      { "speaker": "narasi", "text": "Lalu hening." },
+      { "speaker": "narasi", "text": "Pandanganmu menggelap." }
+    ],
+    "choices": [],
+    "triggerDeath": true
+  },
+
+  "ending-terlambat": {
+    "id": "ending-terlambat",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "\"AWAS!\"" },
+      { "speaker": "narasi", "text": "Dia menoleh. Matamu bertemu. Dia melihat wajahnya sendiri di wajahmu." },
+      { "speaker": "narasi", "text": "Tapi truk itu sudah terlalu dekat." },
+      { "speaker": "narasi", "text": "Suara benturan. Hujan terus turun." },
+      { "speaker": "narasi", "text": "Kamu jatuh berlutut di aspal basah. Loop tidak reset." },
+      { "speaker": "narasi", "text": "Untuk pertama kalinya, waktu terus berjalan melewati jam tiga." },
+      { "speaker": "narasi", "text": "Tapi kamu tidak berhasil menyelamatkannya." }
+    ],
+    "choices": [],
+    "ending": "terlambat"
+  },
+
+  "ending-selamat": {
+    "id": "ending-selamat",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu berlari." },
+      { "speaker": "narasi", "text": "Tanganmu meraih jaketnya. Kamu menariknya mundur ke trotoar." },
+      { "speaker": "narasi", "text": "Truk melintas. Angin dari kecepatan truk menerpa wajah kalian berdua." },
+      { "speaker": "narasi", "text": "Dia terjatuh di trotoar. Menatapmu. Kalian saling menatap — wajah yang sama, mata yang sama." },
+      { "speaker": "???", "text": "...Siapa—" },
+      { "speaker": "narasi", "text": "Sebelum dia selesai bicara, tubuhnya perlahan transparan. Memudar. Lenyap." },
+      { "speaker": "narasi", "text": "Kamu sendirian di trotoar basah." },
+      { "speaker": "narasi", "text": "Jam 15:01. Tidak ada suara tabrakan. Tidak ada reset." },
+      { "speaker": "narasi", "text": "Hujan perlahan berhenti." },
+      { "speaker": "narasi", "text": "HP-mu bergetar. Notifikasi dari dosen:" },
+      { "speaker": "narasi", "text": "\"Deadline diperpanjang satu minggu. Istirahat dulu ya.\"" },
+      { "speaker": "narasi", "text": "Kamu tersenyum. Untuk pertama kalinya hari ini, kamu merasa waktu berjalan ke depan." }
+    ],
+    "choices": [],
+    "ending": "selamat"
+  },
+
+  "post-terlambat": {
+    "id": "post-terlambat",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Jam 15:05. Kamu berlutut di aspal basah." },
+      { "speaker": "narasi", "text": "Ambulans sudah pergi. Polisi memasang garis kuning." },
+      { "speaker": "narasi", "text": "Loop tidak reset. Untuk pertama kalinya, waktu terus berjalan." },
+      { "speaker": "narasi", "text": "Tapi seseorang berdiri di belakangmu." }
+    ],
+    "choices": [
+      { "text": "Menoleh", "nextNode": "post-terlambat-sosok", "timeCost": 0 }
+    ]
+  },
+
+  "post-terlambat-sosok": {
+    "id": "post-terlambat-sosok",
+    "background": "perempatan",
+    "character": "sosok-menyeringai",
+    "lines": [
+      { "speaker": "???", "text": "Lu gagal." },
+      { "speaker": "narasi", "text": "Sosok itu. Masih di sini. Hoodie basah kuyup." },
+      { "speaker": "???", "text": "Tapi loop-nya belum sepenuhnya mati." },
+      { "speaker": "???", "text": "Ada satu cara terakhir. Tapi harganya berat." },
+      { "speaker": "narasi", "text": "Dia menunjuk ke zebra cross. Tempat tabrakan tadi." },
+      { "speaker": "???", "text": "Lu harus berdiri di sana. Dan biarkan waktu terulang satu kali lagi." },
+      { "speaker": "???", "text": "Tapi kali ini, yang mati bukan versi lain dari lu. Kali ini, lu sendiri yang harus merasakan benturannya." },
+      { "speaker": "???", "text": "Kalau lu selamat di loop berikutnya... loop berhenti. Beneran." }
+    ],
+    "choices": [
+      { "text": "Berdiri di zebra cross", "nextNode": "post-terlambat-zebra", "timeCost": 0 },
+      { "text": "Pergi. Tinggalkan semua ini.", "nextNode": "ending-penyesalan", "timeCost": 0 }
+    ]
+  },
+
+  "post-terlambat-zebra": {
+    "id": "post-terlambat-zebra",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu berdiri di tengah zebra cross." },
+      { "speaker": "narasi", "text": "Hujan turun lebih deras." },
+      { "speaker": "narasi", "text": "Dari kejauhan, suara mesin truk." },
+      { "speaker": "narasi", "text": "Kamu menutup mata." },
+      { "speaker": "narasi", "text": "Suara ban mendecit." },
+      { "speaker": "narasi", "text": "Gelap." }
+    ],
+    "choices": [],
+    "triggerDeath": true
+  },
+
+  "ending-penyesalan": {
+    "id": "ending-penyesalan",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu berjalan menjauh dari perempatan." },
+      { "speaker": "narasi", "text": "Sosok itu tidak mengejarmu. Tidak memanggil." },
+      { "speaker": "narasi", "text": "Hujan pelan-pelan berhenti. Langit Bandung kembali abu-abu biasa." },
+      { "speaker": "narasi", "text": "Kamu naik angkot. Pulang." },
+      { "speaker": "narasi", "text": "Hidup terus berjalan. Tapi setiap sore, tepat jam tiga, kamu berhenti." },
+      { "speaker": "narasi", "text": "Mendengarkan." },
+      { "speaker": "narasi", "text": "Suara yang tidak pernah hilang." }
+    ],
+    "choices": [],
+    "ending": "penyesalan"
+  },
+
+  "ending-pengganti": {
+    "id": "ending-pengganti",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu mendorong dirimu yang lain ke trotoar." },
+      { "speaker": "narasi", "text": "Dia terjatuh. Selamat." },
+      { "speaker": "narasi", "text": "Tapi doronganmu terlalu kuat. Seorang wanita di sebelahnya kehilangan keseimbangan." },
+      { "speaker": "narasi", "text": "Tas belanjaannya jatuh. Jeruk menggelinding ke jalan." },
+      { "speaker": "narasi", "text": "Dia melangkah untuk mengambilnya." },
+      { "speaker": "narasi", "text": "Suara klakson." },
+      { "speaker": "narasi", "text": "Kamu menoleh. Terlambat." },
+      { "speaker": "narasi", "text": "Loop berhenti. Kamu selamat. 'Kamu yang lain' memudar." },
+      { "speaker": "narasi", "text": "Tapi wanita itu tidak memudar. Dia nyata." }
+    ],
+    "choices": [],
+    "ending": "pengganti"
+  },
+
+  "ending-paradoks": {
+    "id": "ending-paradoks",
+    "background": "kota-salju",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu berlari ke tengah jalan. Meraih lengannya." },
+      { "speaker": "narasi", "text": "Kalian berdua saling menatap. Wajah yang sama. Mata yang sama." },
+      { "speaker": "???", "text": "...Kamu—" },
+      { "speaker": "narasi", "text": "Truk melintas menembus kalian berdua." },
+      { "speaker": "narasi", "text": "Tidak ada rasa sakit. Tidak ada suara." },
+      { "speaker": "narasi", "text": "Tubuh kalian transparan. Memudar bersamaan." },
+      { "speaker": "narasi", "text": "Kamu membuka mata." },
+      { "speaker": "narasi", "text": "Sebuah kafe. Bukan di Bandung. Kota yang tidak kamu kenal." },
+      { "speaker": "narasi", "text": "Jam di dinding: 13:00." },
+      { "speaker": "narasi", "text": "Di luar jendela, salju turun." }
+    ],
+    "choices": [],
+    "ending": "paradoks"
+  },
+
+  "tetap-di-kafe-final": {
+    "id": "tetap-di-kafe-final",
+    "background": "kafe-tutup",
+    "character": "sosok-menyeringai",
+    "lines": [
+      { "speaker": "???", "text": "...Lu yakin?" },
+      { "speaker": "narasi", "text": "Kamu mengangguk." },
+      { "speaker": "???", "text": "Oke." },
+      { "speaker": "narasi", "text": "Dia berdiri. Melepas hoodie-nya. Menyerahkannya padamu." },
+      { "speaker": "???", "text": "Pake ini. Duduk di sini. Dan tunggu." },
+      { "speaker": "???", "text": "Versi berikutnya bakal dateng. Mungkin besok. Mungkin sebentar lagi." },
+      { "speaker": "???", "text": "Lu cuma perlu bilang satu hal: 'Ranked lagi susah hari ini.'" },
+      { "speaker": "narasi", "text": "Dia berjalan ke pintu kafe. Tidak menoleh." },
+      { "speaker": "narasi", "text": "Kamu memakai hoodie. Duduk di sudut." },
+      { "speaker": "narasi", "text": "HP-mu menyala. Kamu membuka game." }
+    ],
+    "choices": [],
+    "ending": "observer"
+  },
+
+  "kopi-terakhir-scene": {
+    "id": "kopi-terakhir-scene",
+    "background": "cafe-mendung",
+    "character": "raka-sedih",
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu duduk di counter. Raka membuatkan Americano terakhir." },
+      { "speaker": "narasi", "text": "Tidak bicara. Hanya suara mesin espresso dan hujan." },
+      { "speaker": "Raka", "text": "Gue tau lu mau pergi kali ini." },
+      { "speaker": "narasi", "text": "Kamu mengangguk." },
+      { "speaker": "Raka", "text": "Lu tau, dari semua loop yang gue inget... ini yang paling lama lu duduk di sini." },
+      { "speaker": "narasi", "text": "Kopinya datang. Hangat di tangan." },
+      { "speaker": "Raka", "text": "Kalau lu berhasil... gue bakal lupa semua ini kan?" },
+      { "speaker": "narasi", "text": "Kamu tidak menjawab. Kamu minum kopinya." },
+      { "speaker": "narasi", "text": "Pahit. Sempurna." },
+      { "speaker": "Raka", "text": "...Jangan bilang selamat tinggal. Nanti gue ikut nangis." },
+      { "speaker": "narasi", "text": "Kamu berdiri. Meninggalkan uang di meja." },
+      { "speaker": "narasi", "text": "Kamu berjalan ke pintu. Hujan menanti." }
+    ],
+    "choices": [
+      { "text": "Pergi ke perempatan", "nextNode": "perempatan-awal", "timeCost": 5, "givesClue": "tau-harus-ke-perempatan" }
+    ]
+  },
+
+  "hack-terminal": {
+    "id": "hack-terminal",
+    "background": "void-putih",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu mencoba mengetik di terminal yang bukan milikmu." },
+      { "speaker": "narasi", "text": "> whoami" },
+      { "speaker": "narasi", "text": "> SUBJECT_01 (loop_count: ████)" },
+      { "speaker": "narasi", "text": "> ls /system/" },
+      { "speaker": "narasi", "text": "> loop_engine.py  |  collision_event.sh  |  time_reset.cfg  |  README.md" },
+      { "speaker": "narasi", "text": "Ada file README. Dan ada engine yang mengatur loop ini." }
+    ],
+    "choices": [
+      { "text": "> cat README.md", "nextNode": "hack-deeper", "timeCost": 15 },
+      { "text": "> nano time_reset.cfg", "nextNode": "hack-freeze", "timeCost": 15 },
+      { "text": "Tutup terminal", "nextNode": "lihat-sekeliling-sore", "timeCost": 5 }
+    ]
+  },
+
+  "hack-deeper": {
+    "id": "hack-deeper",
+    "background": "void-putih",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "> cat README.md" },
+      { "speaker": "narasi", "text": "\"LOOP ENGINE v3.17 — Trauma Processing System\"" },
+      { "speaker": "narasi", "text": "\"Sistem ini dirancang untuk memproses trauma dengan mengulang momen kritis\"" },
+      { "speaker": "narasi", "text": "\"sampai subjek menemukan resolusi yang dapat diterima oleh neural pattern.\"" },
+      { "speaker": "narasi", "text": "\"CATATAN: Subjek TIDAK boleh mengetahui bahwa ini adalah simulasi.\"" },
+      { "speaker": "narasi", "text": "\"Jika subjek mencapai file ini, jalankan: system.exit(0)\"" },
+      { "speaker": "narasi", "text": "Kamu menatap layar. Ini semua... simulasi?" },
+      { "speaker": "narasi", "text": "Kafe ini. Raka. Sosok itu. Hujan." },
+      { "speaker": "narasi", "text": "Tidak ada yang nyata." }
+    ],
+    "choices": [
+      { "text": "> system.exit(0)", "nextNode": "ending-simulasi", "timeCost": 0 },
+      { "text": "Tutup laptop. Pilih untuk percaya ini nyata.", "nextNode": "perempatan-awal", "timeCost": 10, "givesClue": "tau-harus-ke-perempatan" }
+    ]
+  },
+
+  "hack-freeze": {
+    "id": "hack-freeze",
+    "background": "void-putih",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "> nano time_reset.cfg" },
+      { "speaker": "narasi", "text": "File berisi satu baris: COLLISION_TIME=15:00:00" },
+      { "speaker": "narasi", "text": "Kamu mengubahnya: COLLISION_TIME=99:99:99" },
+      { "speaker": "narasi", "text": "> Ctrl+S" },
+      { "speaker": "narasi", "text": "> WARNING: TIME_ANCHOR REMOVED. LOOP WILL NOT TRIGGER." },
+      { "speaker": "narasi", "text": "Kamu melihat ke luar jendela. Tetes hujan berhenti di udara." },
+      { "speaker": "narasi", "text": "Orang-orang di jalan membeku. Raka membeku di tengah gerakan mengusap gelas." },
+      { "speaker": "narasi", "text": "Jam di layar: 14:59. Dan tidak akan pernah berubah lagi." }
+    ],
+    "choices": [],
+    "ending": "glitch"
+  },
+
+  "ending-simulasi": {
+    "id": "ending-simulasi",
+    "background": "void-putih",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "> system.exit(0)" },
+      { "speaker": "narasi", "text": "> TERMINATING LOOP_ENGINE..." },
+      { "speaker": "narasi", "text": "> FREEING SUBJECT_MEMORY..." },
+      { "speaker": "narasi", "text": "> WARNING: SUBJECT WILL LOSE ALL PROGRESS" },
+      { "speaker": "narasi", "text": "> CONFIRM? [Y]" },
+      { "speaker": "narasi", "text": "Kamu menekan Y." },
+      { "speaker": "narasi", "text": "Layar laptop menjadi putih. Lalu kafe. Lalu semuanya." },
+      { "speaker": "narasi", "text": "Tidak ada suara hujan. Tidak ada bau kopi." },
+      { "speaker": "narasi", "text": "Hanya putih." }
+    ],
+    "choices": [],
+    "ending": "simulasi"
+  },
+
+  "penyangkalan-scene": {
+    "id": "penyangkalan-scene",
+    "background": "cafe-siang",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu tidak bergerak dari kursi." },
+      { "speaker": "narasi", "text": "Kamu tahu apa yang akan terjadi. Kamu sudah mengalaminya puluhan kali." },
+      { "speaker": "narasi", "text": "Pesan kopi. Bicara dengan Raka. Temui sosok. Pergi ke perempatan. Mati atau tidak mati." },
+      { "speaker": "narasi", "text": "Kamu bosan." },
+      { "speaker": "narasi", "text": "Jadi kamu diam saja. Menatap langit-langit kafe." },
+      { "speaker": "narasi", "text": "\"Ini tidak nyata,\" kamu berbisik." },
+      { "speaker": "narasi", "text": "\"Ini tidak nyata. Ini tidak nyata. Ini tidak nyata.\"" },
+      { "speaker": "narasi", "text": "Jam terus berdetak. Kamu tidak peduli." },
+      { "speaker": "narasi", "text": "Dan mungkin — hanya mungkin — itu satu-satunya kebebasan yang tersisa." }
+    ],
+    "choices": [],
+    "ending": "penyangkalan"
+  },
+
+  "acceptance-scene": {
+    "id": "acceptance-scene",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu menutup laptop. Berdiri." },
+      { "speaker": "narasi", "text": "Keluar kafe tanpa memesan kopi. Tanpa bicara dengan siapa pun." },
+      { "speaker": "narasi", "text": "Kamu berjalan ke perempatan. Duduk di trotoar." },
+      { "speaker": "narasi", "text": "Hujan turun. Kamu membiarkannya membasahimu." },
+      { "speaker": "narasi", "text": "Kali ini, kamu tidak melawan. Tidak berlari. Tidak berteriak." },
+      { "speaker": "narasi", "text": "Kamu hanya... menerima." },
+      { "speaker": "narasi", "text": "Jam tiga. Suara truk dari kejauhan." },
+      { "speaker": "narasi", "text": "Kamu mendengarnya lewat. Tidak ada tabrakan." },
+      { "speaker": "narasi", "text": "Kamu duduk di sana sampai hujan berhenti. Sampai langit bersih." },
+      { "speaker": "narasi", "text": "Untuk pertama kalinya, kamu merasa tenang." }
+    ],
+    "choices": [],
+    "ending": "acceptance"
+  },
+
+  "perempatan-menunggu": {
+    "id": "perempatan-menunggu",
+    "background": "perempatan-malam",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu berdiri di perempatan. Jam baru menunjukkan 13:15." },
+      { "speaker": "narasi", "text": "Masih terlalu awal. Dua jam sebelum segalanya terjadi." },
+      { "speaker": "narasi", "text": "Kamu menunggu. Berdiri di bawah hujan gerimis." },
+      { "speaker": "narasi", "text": "Jam dua lewat. Tiga lewat. Tidak ada truk. Tidak ada tabrakan." },
+      { "speaker": "narasi", "text": "Mungkin karena kamu di sini terlalu awal, event-nya tidak terpicu." },
+      { "speaker": "narasi", "text": "Mungkin tidak ada loop." },
+      { "speaker": "narasi", "text": "Kamu menunggu sampai kafe tutup. Raka melambaikan tangan dari balik kaca." },
+      { "speaker": "narasi", "text": "Kamu tidak membalas." }
+    ],
+    "choices": [],
+    "ending": "kekosongan"
+  },
+
+  "truk-discovery": {
+    "id": "truk-discovery",
+    "background": "truk-kabin",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Ada gang sempit di sebelah kanan perempatan. Kamu memasukinya." },
+      { "speaker": "narasi", "text": "Di ujung gang, sebuah truk box putih terparkir. Mesin menyala. Tidak ada sopir." },
+      { "speaker": "narasi", "text": "Kamu naik ke kabin. Di dashboard, ada foto." },
+      { "speaker": "narasi", "text": "Foto dirimu. Di kafe. Dengan Americano." },
+      { "speaker": "narasi", "text": "Di balik foto, tulisan tangan: \"Rute: Jl. Merdeka → Perempatan. Jam: 14:58. Jangan terlambat.\"" },
+      { "speaker": "narasi", "text": "Kamu melihat ke spion. Wajahmu memandang balik." },
+      { "speaker": "narasi", "text": "Tapi matanya berbeda. Lebih lelah. Lebih tua." },
+      { "speaker": "narasi", "text": "Truk bergerak. Kamu tidak menyentuh pedalnya." },
+      { "speaker": "narasi", "text": "Tapi kamu sudah tahu ke mana truk ini pergi." }
+    ],
+    "choices": [],
+    "ending": "pengemudi"
+  },
+
+  "dua-sosok-meet": {
+    "id": "dua-sosok-meet",
+    "background": "kafe-tutup",
+    "character": "sosok-tua",
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu melihat ke meja di sudut lain. Ada orang lain di sana." },
+      { "speaker": "narasi", "text": "Hoodie yang sama. Postur yang sama. Tapi lebih tua." },
+      { "speaker": "???", "text": "Oh. Lu bisa liat dia juga?" },
+      { "speaker": "narasi", "text": "Sosok yang lebih tua mengangkat wajah. Matanya kosong." },
+      { "speaker": "???", "text": "Dia itu gue dari jauh ke depan. Loop yang ke-seratus-sekian." },
+      { "speaker": "???", "text": "Dia udah ga ngomong. Udah ga main game. Cuma duduk." },
+      { "speaker": "narasi", "text": "Sosok yang lebih tua menatapmu. Dan untuk pertama kalinya, dia bicara." },
+      { "speaker": "???", "text": "...Setiap kali seseorang keluar dari loop ini, seseorang yang lain masuk." },
+      { "speaker": "???", "text": "Dan orang itu tidak pernah tahu kenapa dia tiba-tiba ada di kafe di Bandung." },
+      { "speaker": "narasi", "text": "Pintu kafe terbuka. Seseorang masuk. Laptop di tangan. Wajah bingung." },
+      { "speaker": "narasi", "text": "Wajah yang asing. Tapi matanya... sama." }
+    ],
+    "choices": [],
+    "ending": "dua-sisi"
+  },
+
+  "ending-acceptance": {
+    "id": "ending-acceptance",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu duduk di trotoar basah." },
+      { "speaker": "narasi", "text": "Dirimu yang lain berjalan melewatimu. Menyeberang. Truk melintas." },
+      { "speaker": "narasi", "text": "Tapi kali ini, kamu tidak melihat." },
+      { "speaker": "narasi", "text": "Kamu hanya duduk, menatap langit." },
+      { "speaker": "narasi", "text": "Dan tidak ada suara tabrakan." },
+      { "speaker": "narasi", "text": "Untuk pertama kalinya, kamu sadar: mungkin bukan kamu yang harus menyelamatkan siapa pun." },
+      { "speaker": "narasi", "text": "Mungkin kamu hanya perlu berhenti berlari." }
+    ],
+    "choices": [],
+    "ending": "acceptance"
+  },
+
+  "ending-kekosongan": {
+    "id": "ending-kekosongan",
+    "background": "perempatan-malam",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu berdiri di perempatan. Sendirian." },
+      { "speaker": "narasi", "text": "Menunggu sesuatu yang mungkin tidak akan datang." },
+      { "speaker": "narasi", "text": "Jam tiga lewat. Empat. Lima." },
+      { "speaker": "narasi", "text": "Tidak ada truk. Tidak ada tabrakan. Tidak ada loop." },
+      { "speaker": "narasi", "text": "Hanya kamu dan hujan yang tidak pernah berhenti." }
+    ],
+    "choices": [],
+    "ending": "kekosongan"
+  },
+
+  "ending-pengorbanan": {
+    "id": "ending-pengorbanan",
+    "background": "perempatan",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Loop restart. Kali ini kamu ingat semuanya." },
+      { "speaker": "narasi", "text": "Kamu langsung berlari ke perempatan. Menarik dirimu yang lain ke trotoar." },
+      { "speaker": "narasi", "text": "Dia selamat. Dia menghilang." },
+      { "speaker": "narasi", "text": "Loop berhenti. Tapi kamu masih di sini." },
+      { "speaker": "narasi", "text": "Kamu berjalan kembali ke kafe. Duduk di sudut. Memakai hoodie." },
+      { "speaker": "narasi", "text": "Kamu membuka HP. Memulai game baru." },
+      { "speaker": "narasi", "text": "Dan menunggu." }
+    ],
+    "choices": [],
+    "ending": "pengorbanan"
+  }
+}

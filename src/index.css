@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Noto Serif', serif;
+  --color-ink: #1a1a1a;
+  --color-paper: #f5f0e8;
+  --color-accent: #c0392b;
+  --color-muted: #888;
+}
+
+body {
+  margin: 0;
+  background: #0a0a0a;
+  overflow: hidden;
+  font-family: var(--font-serif);
+}
+
+/* Manga screentone pattern */
+.screentone {
+  background-image: radial-gradient(circle, #333 0.5px, transparent 0.5px);
+  background-size: 4px 4px;
+}
+
+/* Typewriter cursor blink */
+.cursor-blink::after {
+  content: '|';
+  animation: blink 0.8s step-end infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+/* Ink bleed effect on text */
+.ink-text {
+  text-shadow: 0.3px 0.3px 0 rgba(0,0,0,0.3);
+}
+
+/* Glitch base */
+.glitch-active {
+  animation: glitchShake 0.1s linear infinite;
+}
+@keyframes glitchShake {
+  0% { transform: translate(0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(1px, -2px); }
+  75% { transform: translate(-1px, 2px); }
+  100% { transform: translate(2px, -1px); }
+}
+
+/* Fade in */
+.animate-fadeIn {
+  animation: fadeIn 1s ease-in forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Scanlines */
+.scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.03) 2px,
+    rgba(255, 255, 255, 0.03) 4px
+  );
+}
+
+/* Static noise */
+.static-noise {
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: staticMove 0.1s steps(3) infinite;
+}
+@keyframes staticMove {
+  0% { background-position: 0 0; }
+  33% { background-position: -50px -50px; }
+  66% { background-position: 50px 25px; }
+  100% { background-position: -25px 50px; }
+}
+
+/* Rain overlay */
+.rain-overlay {
+  background-image: repeating-linear-gradient(
+    175deg,
+    transparent,
+    transparent 40px,
+    rgba(150, 180, 200, 0.05) 40px,
+    rgba(150, 180, 200, 0.05) 41px
+  );
+  animation: rainFall 0.4s linear infinite;
+}
+@keyframes rainFall {
+  from { background-position: 0 0; }
+  to { background-position: 5px 40px; }
+}
+
+/* Tension vignette when time is running out */
+.tense-vignette::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 45;
+  box-shadow: inset 0 0 120px 40px rgba(139, 0, 0, 0.3);
+  animation: tensePulse 1.5s ease-in-out infinite;
+}
+@keyframes tensePulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* Scene transition */
+.scene-transition {
+  animation: sceneFade 0.5s ease-out;
+}
+@keyframes sceneFade {
+  from { opacity: 0; transform: scale(1.02); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Character entrance */
+.char-enter {
+  animation: charSlideUp 0.4s ease-out;
+}
+@keyframes charSlideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
