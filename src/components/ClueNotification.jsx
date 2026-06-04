@@ -50,7 +50,7 @@ export default function ClueNotification({ clues }) {
       {clues.length > 0 && (
         <button
           onClick={() => setShowLog(s => !s)}
-          className="fixed top-4 left-4 z-40 text-amber-800/60 text-xs tracking-wider font-mono flex items-center gap-2 hover:text-amber-500 transition-colors duration-200 cursor-pointer"
+          className="fixed top-4 left-4 z-40 text-amber-500/80 text-xs tracking-wider font-mono flex items-center gap-2 hover:text-amber-300 transition-colors duration-200 cursor-pointer bg-black/40 px-2 py-1 backdrop-blur-sm"
         >
           <span className="text-amber-700/80">◆</span>
           Catatan: {clues.length}

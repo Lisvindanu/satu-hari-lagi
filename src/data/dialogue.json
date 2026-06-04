@@ -543,7 +543,6 @@
     "background": "scene-tabrakan",
     "character": null,
     "lines": [
-      { "speaker": "narasi", "text": "Jam 15:00." },
       { "speaker": "narasi", "text": "Dari arah perempatan —" },
       { "speaker": "narasi", "text": "Suara ban mendecit di aspal basah." },
       { "speaker": "narasi", "text": "Klakson panjang. Satu detik. Dua detik." },

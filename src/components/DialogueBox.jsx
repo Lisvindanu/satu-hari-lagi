@@ -103,7 +103,7 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
       {/* Clock — top center, more prominent */}
-      <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 text-base tracking-[0.5em] font-mono select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${clockColor}`}>
+      <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 text-sm tracking-[0.5em] font-mono select-none px-3 py-1 bg-black/50 backdrop-blur-sm ${clockColor}`}>
         {formatTime(time)}
       </div>
 
