@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { decodeSave } from '../utils/saveCode';
 
-export default function TitleScreen({ onStart, onLoadSave, loopCount, audio, onShowLeaderboard }) {
+export default function TitleScreen({ onStart, onLoadSave, loopCount, audio, onShowLeaderboard, onShowGallery, hasEndings }) {
   const [codeInput, setCodeInput] = useState('');
   const [codeError, setCodeError] = useState(false);
   const [showCodeInput, setShowCodeInput] = useState(false);
@@ -90,8 +90,16 @@ export default function TitleScreen({ onStart, onLoadSave, loopCount, audio, onS
           )}
         </div>
 
-        {/* Leaderboard */}
-        <div className="mt-6">
+        {/* Ending gallery + Leaderboard */}
+        <div className="mt-6 flex flex-col items-center gap-3">
+          {hasEndings && (
+            <button
+              onClick={onShowGallery}
+              className="text-gray-700 text-xs tracking-widest hover:text-amber-700 transition-colors cursor-pointer"
+            >
+              ending gallery
+            </button>
+          )}
           <button
             onClick={onShowLeaderboard}
             className="text-gray-700 text-xs tracking-widest hover:text-gray-500 transition-colors cursor-pointer"

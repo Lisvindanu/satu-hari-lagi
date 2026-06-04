@@ -119,8 +119,9 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
 
       {/* Dialogue box */}
       <div
-        className="bg-black/92 border-t border-gray-800/80 px-8 py-6 min-h-[180px] cursor-pointer backdrop-blur-sm"
+        className="bg-black/92 border-t border-gray-800/80 px-6 sm:px-8 py-5 sm:py-6 min-h-[160px] sm:min-h-[180px] cursor-pointer backdrop-blur-sm"
         onClick={!showChoices ? handleClick : undefined}
+        onTouchEnd={!showChoices ? (e) => { e.preventDefault(); handleClick(); } : undefined}
       >
         {!showChoices ? (
           <div>
@@ -150,11 +151,9 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
               <button
                 key={i}
                 onMouseEnter={() => audio && audio.playChoiceHover()}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onChoice(choice);
-                }}
-                className="block w-full text-left px-4 py-3 border border-gray-800 text-gray-300 hover:border-amber-700 hover:text-amber-200 hover:bg-amber-950/20 transition-all duration-300 text-sm tracking-wide cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); onChoice(choice); }}
+                onTouchEnd={(e) => { e.stopPropagation(); e.preventDefault(); onChoice(choice); }}
+                className="block w-full text-left px-4 py-3 border border-gray-800 text-gray-300 hover:border-amber-700 hover:text-amber-200 hover:bg-amber-950/20 active:bg-amber-950/30 transition-all duration-300 text-sm tracking-wide cursor-pointer"
               >
                 <span className="text-gray-600 mr-3">{i + 1}.</span>
                 {choice.text}

@@ -12,6 +12,7 @@ import DeathScreen from './components/DeathScreen';
 import EndingScreen from './components/EndingScreen';
 import ClueNotification from './components/ClueNotification';
 import Leaderboard from './components/Leaderboard';
+import EndingGallery from './components/EndingGallery';
 import { encodeSave } from './utils/saveCode';
 
 const DEATH_TIME = 15 * 60;
@@ -37,6 +38,7 @@ export default function App() {
   const prevBgRef = useRef(null);
   const prevClueCountRef = useRef(0);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
   const [endingElapsed, setEndingElapsed] = useState(null);
 
   const currentNode = dialogueData[state.currentNodeId];
@@ -113,8 +115,11 @@ export default function App() {
           loopCount={state.loopCount}
           audio={audio}
           onShowLeaderboard={() => setShowLeaderboard(true)}
+          onShowGallery={() => setShowGallery(true)}
+          hasEndings={state.endings.length > 0}
         />
         {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+        {showGallery && <EndingGallery unlockedEndings={state.endings} onClose={() => setShowGallery(false)} />}
       </>
     );
   }
