@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import useGameState from './hooks/useGameState';
 import useAudio from './hooks/useAudio';
+import useSpeedrun from './hooks/useSpeedrun';
 import dialogueData from './data/dialogue.json';
 import TitleScreen from './components/TitleScreen';
 import DialogueBox from './components/DialogueBox';
@@ -10,6 +11,8 @@ import GlitchEffect from './components/GlitchEffect';
 import DeathScreen from './components/DeathScreen';
 import EndingScreen from './components/EndingScreen';
 import ClueNotification from './components/ClueNotification';
+import Leaderboard from './components/Leaderboard';
+import { encodeSave } from './utils/saveCode';
 
 const DEATH_TIME = 15 * 60;
 const TENSION_TIME = 14 * 60 + 30; // 14:30
@@ -22,6 +25,7 @@ export default function App() {
     hasClue,
     resetLoop,
     startGame,
+    loadSave,
     triggerDeath,
     reachEnding,
     continueFromEnding,
@@ -29,8 +33,11 @@ export default function App() {
   } = useGameState();
 
   const audio = useAudio();
+  const speedrun = useSpeedrun();
   const prevBgRef = useRef(null);
   const prevClueCountRef = useRef(0);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [endingElapsed, setEndingElapsed] = useState(null);
 
   const currentNode = dialogueData[state.currentNodeId];
 
@@ -77,6 +84,8 @@ export default function App() {
     }
 
     if (choice.ending) {
+      const ms = speedrun.stop();
+      setEndingElapsed(ms);
       reachEnding(choice.ending);
       return;
     }
@@ -96,7 +105,18 @@ export default function App() {
 
   // Title screen
   if (state.phase === 'title') {
-    return <TitleScreen onStart={startGame} loopCount={state.loopCount} audio={audio} />;
+    return (
+      <>
+        <TitleScreen
+          onStart={() => { speedrun.start(); startGame(); }}
+          onLoadSave={(saved) => { speedrun.start(); loadSave(saved); }}
+          loopCount={state.loopCount}
+          audio={audio}
+          onShowLeaderboard={() => setShowLeaderboard(true)}
+        />
+        {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
+      </>
+    );
   }
 
   // Glitch transition
@@ -111,13 +131,26 @@ export default function App() {
 
   // Ending screen
   if (state.phase === 'ending') {
+    const saveCode = encodeSave({ clues: state.clues, endings: state.endings, loopCount: state.loopCount });
     return (
-      <EndingScreen
-        endingId={state.endings[state.endings.length - 1]}
-        loopCount={state.loopCount}
-        onRestart={resetLoop}
-        onContinue={continueFromEnding}
-      />
+      <>
+        <EndingScreen
+          endingId={state.endings[state.endings.length - 1]}
+          loopCount={state.loopCount}
+          onRestart={() => { speedrun.start(); resetLoop(); }}
+          onContinue={continueFromEnding}
+          elapsedMs={endingElapsed}
+          formatTime={speedrun.format}
+          saveCode={saveCode}
+          onShowLeaderboard={() => setShowLeaderboard(true)}
+        />
+        {showLeaderboard && (
+          <Leaderboard
+            endingId={state.endings[state.endings.length - 1]}
+            onClose={() => setShowLeaderboard(false)}
+          />
+        )}
+      </>
     );
   }
 

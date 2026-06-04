@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { submitScore } from '../utils/api';
 
 const ENDINGS = {
   selamat: {
@@ -217,10 +218,32 @@ const ENDINGS = {
   },
 };
 
-export default function EndingScreen({ endingId, loopCount, onRestart, onContinue }) {
+export default function EndingScreen({ endingId, loopCount, onRestart, onContinue, elapsedMs, formatTime, saveCode, onShowLeaderboard }) {
   const [lineIndex, setLineIndex] = useState(-1);
   const [showCredits, setShowCredits] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
+  const [playerName, setPlayerName] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!playerName.trim() || submitted) return;
+    const ok = await submitScore({
+      name: playerName.trim(),
+      ending: endingId,
+      time_ms: elapsedMs,
+      loop_count: loopCount,
+    });
+    if (ok) setSubmitted(true);
+  };
+
+  const handleCopyCode = () => {
+    if (!saveCode) return;
+    navigator.clipboard.writeText(saveCode).then(() => {
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 2000);
+    });
+  };
 
   const ending = ENDINGS[endingId] || ENDINGS.terlambat;
 
@@ -274,9 +297,54 @@ export default function EndingScreen({ endingId, loopCount, onRestart, onContinu
         {/* Credits */}
         {showCredits && (
           <div className="animate-fadeIn">
-            <div className="text-gray-700 text-xs tracking-wider mb-8">
+            <div className="text-gray-700 text-xs tracking-wider mb-6 space-y-1">
               <p>Loop diselesaikan dalam {loopCount + 1} percobaan.</p>
+              {elapsedMs != null && (
+                <p className="text-amber-800">Waktu: <span className="font-mono">{formatTime(elapsedMs)}</span></p>
+              )}
             </div>
+
+            {/* Speedrun submit */}
+            {elapsedMs != null && !submitted && (
+              <div className="mb-6 flex gap-2 justify-center items-center">
+                <input
+                  type="text"
+                  value={playerName}
+                  onChange={e => setPlayerName(e.target.value.slice(0, 20))}
+                  placeholder="nama kamu"
+                  maxLength={20}
+                  className="bg-transparent border-b border-gray-700 text-gray-300 text-sm text-center outline-none w-32 placeholder-gray-700 pb-1"
+                  onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+                />
+                <button
+                  onClick={handleSubmit}
+                  className="text-amber-700 text-xs tracking-widest hover:text-amber-400 transition-colors cursor-pointer"
+                >
+                  SUBMIT
+                </button>
+              </div>
+            )}
+            {submitted && (
+              <div className="mb-6 text-amber-700 text-xs tracking-widest">
+                ✓ score tersimpan
+                <button onClick={onShowLeaderboard} className="ml-3 text-gray-500 hover:text-gray-300 cursor-pointer">
+                  lihat leaderboard
+                </button>
+              </div>
+            )}
+
+            {/* Save code */}
+            {saveCode && (
+              <div className="mb-6 text-center">
+                <p className="text-gray-700 text-[10px] tracking-widest mb-2">SAVE CODE</p>
+                <button
+                  onClick={handleCopyCode}
+                  className="font-mono text-gray-500 text-sm tracking-widest hover:text-gray-300 transition-colors cursor-pointer border border-gray-800 px-4 py-2"
+                >
+                  {codeCopied ? '✓ tersalin' : saveCode}
+                </button>
+              </div>
+            )}
 
             <div className="space-y-3">
               <button
@@ -287,7 +355,6 @@ export default function EndingScreen({ endingId, loopCount, onRestart, onContinu
               </button>
             </div>
 
-            {/* Continue button for endings with post-sequence */}
             {showContinue && ending.canContinue && (
               <button
                 onClick={() => onContinue(ending.continueNode, ending.continueTime)}
@@ -297,7 +364,7 @@ export default function EndingScreen({ endingId, loopCount, onRestart, onContinu
               </button>
             )}
 
-            <div className="mt-12 text-gray-800 text-xs tracking-wider">
+            <div className="mt-10 text-gray-800 text-xs tracking-wider">
               <p>SATU HARI LAGI</p>
               <p className="mt-1">visual novel — time loop</p>
             </div>

@@ -85,6 +85,21 @@ export default function useGameState() {
     setState(prev => ({ ...prev, phase: 'playing' }));
   }, []);
 
+  // Load from save code
+  const loadSave = useCallback(({ clues, endings, loopCount }) => {
+    const autoClues = [...clues];
+    if (loopCount >= 2 && !autoClues.includes('loop-awareness')) autoClues.push('loop-awareness');
+    if (loopCount >= 4 && !autoClues.includes('deep-awareness')) autoClues.push('deep-awareness');
+    setState({
+      ...INITIAL_STATE,
+      currentNodeId: loopCount > 0 ? 'intro' : 'intro-first',
+      loopCount,
+      clues: autoClues,
+      endings,
+      phase: 'playing',
+    });
+  }, []);
+
   // Trigger glitch -> death sequence
   const triggerDeath = useCallback(() => {
     setState(prev => ({ ...prev, phase: 'dead' }));
@@ -127,6 +142,7 @@ export default function useGameState() {
     hasFlag,
     resetLoop,
     startGame,
+    loadSave,
     triggerDeath,
     reachEnding,
     continueFromEnding,
