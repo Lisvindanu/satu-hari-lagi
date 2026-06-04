@@ -1,4 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useMemo } from 'react';
 
 let audioCtx = null;
 
@@ -407,7 +407,7 @@ export default function useAudio() {
     };
   }, [stopAllAmbience]);
 
-  return {
+  return useMemo(() => ({
     playTypeTick,
     playClick,
     playChoiceHover,
@@ -422,5 +422,5 @@ export default function useAudio() {
     stopAllAmbience,
     startHeartbeat,
     stopHeartbeat,
-  };
+  }), [startAmbience, stopAllAmbience, startHeartbeat, stopHeartbeat]);
 }

@@ -42,6 +42,7 @@ export default function App() {
   const prevClueCountRef = useRef(0);
   const prevPhaseRef = useRef('title');
   const prevAchievementsRef = useRef(new Set());
+  const speedrunnerQueuedRef = useRef(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
@@ -106,11 +107,15 @@ export default function App() {
     prevPhaseRef.current = state.phase;
   }, [state.endings, state.clues, state.loopCount, state.phase]);
 
-  // Speedrun achievement (session-only)
+  // Speedrun achievement (session-only, queue once)
   useEffect(() => {
-    if (endingElapsed !== null && endingElapsed <= 5 * 60 * 1000) {
+    if (speedrunnerQueuedRef.current) return;
+    if (endingElapsed !== null && endingElapsed > 0 && endingElapsed <= 5 * 60 * 1000) {
       const a = ACHIEVEMENTS.find(x => x.id === 'speedrunner');
-      if (a) setAchievementQueue(q => [...q, a]);
+      if (a) {
+        speedrunnerQueuedRef.current = true;
+        setAchievementQueue(q => [...q, a]);
+      }
     }
   }, [endingElapsed]);
 
@@ -222,7 +227,7 @@ export default function App() {
           endingId={state.endings[state.endings.length - 1]}
           loopCount={state.loopCount}
           onRestart={() => { speedrun.start(); resetLoop(); }}
-          onContinue={continueFromEnding}
+          onContinue={(nodeId, time) => { speedrun.start(); setEndingElapsed(null); continueFromEnding(nodeId, time); }}
           elapsedMs={endingElapsed}
           formatTime={speedrun.format}
           user={user}
