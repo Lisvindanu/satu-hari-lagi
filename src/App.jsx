@@ -16,7 +16,7 @@ import EndingGallery from './components/EndingGallery';
 import AchievementNotification from './components/AchievementNotification';
 import AchievementGallery from './components/AchievementGallery';
 import { ACHIEVEMENTS, checkAchievements } from './data/achievements';
-import { encodeSave } from './utils/saveCode';
+import { register, login, loadSession, saveProgress, clearToken } from './utils/auth';
 
 const DEATH_TIME = 15 * 60;
 const TENSION_TIME = 14 * 60 + 30; // 14:30
@@ -29,7 +29,7 @@ export default function App() {
     hasClue,
     resetLoop,
     startGame,
-    loadSave,
+    setProgress,
     triggerDeath,
     reachEnding,
     continueFromEnding,
@@ -47,6 +47,7 @@ export default function App() {
   const [showAchievements, setShowAchievements] = useState(false);
   const [endingElapsed, setEndingElapsed] = useState(null);
   const [achievementQueue, setAchievementQueue] = useState([]);
+  const [user, setUser] = useState(null);
 
   const currentNode = dialogueData[state.currentNodeId];
 
@@ -117,6 +118,38 @@ export default function App() {
     setAchievementQueue(q => q.slice(1));
   }, []);
 
+  // Auto-login from stored token on mount
+  useEffect(() => {
+    let cancelled = false;
+    loadSession().then(session => {
+      if (cancelled || !session) return;
+      setUser({ username: session.username });
+      setProgress(session.progress);
+    });
+    return () => { cancelled = true; };
+  }, [setProgress]);
+
+  // Auto-save progress to account whenever it grows
+  useEffect(() => {
+    if (user && (state.endings.length || state.clues.length || state.loopCount)) {
+      saveProgress({ clues: state.clues, endings: state.endings, loopCount: state.loopCount });
+    }
+  }, [state.endings, state.clues, state.loopCount, user]);
+
+  const handleAuth = useCallback(async (mode, username, pin) => {
+    const result = mode === 'register' ? await register(username, pin) : await login(username, pin);
+    if (result.error) return result.error;
+    setUser({ username: result.username });
+    setProgress(result.progress);
+    return null;
+  }, [setProgress]);
+
+  const handleLogout = useCallback(() => {
+    clearToken();
+    setUser(null);
+    setProgress({ clues: [], endings: [], loopCount: 0 });
+  }, [setProgress]);
+
   const handleChoice = useCallback((choice) => {
     audio.playChoiceSelect();
 
@@ -153,7 +186,6 @@ export default function App() {
       <>
         <TitleScreen
           onStart={() => { speedrun.start(); startGame(); }}
-          onLoadSave={(saved) => { speedrun.start(); loadSave(saved); }}
           loopCount={state.loopCount}
           audio={audio}
           onShowLeaderboard={() => setShowLeaderboard(true)}
@@ -161,6 +193,9 @@ export default function App() {
           onShowAchievements={() => setShowAchievements(true)}
           hasEndings={state.endings.length > 0}
           achievementCount={unlockedAchievementIds.length}
+          user={user}
+          onAuth={handleAuth}
+          onLogout={handleLogout}
         />
         {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
         {showGallery && <EndingGallery unlockedEndings={state.endings} onClose={() => setShowGallery(false)} />}
@@ -181,7 +216,6 @@ export default function App() {
 
   // Ending screen
   if (state.phase === 'ending') {
-    const saveCode = encodeSave({ clues: state.clues, endings: state.endings, loopCount: state.loopCount });
     return (
       <>
         <EndingScreen
@@ -191,7 +225,7 @@ export default function App() {
           onContinue={continueFromEnding}
           elapsedMs={endingElapsed}
           formatTime={speedrun.format}
-          saveCode={saveCode}
+          user={user}
           onShowLeaderboard={() => setShowLeaderboard(true)}
         />
         {showLeaderboard && (

@@ -85,19 +85,21 @@ export default function useGameState() {
     setState(prev => ({ ...prev, phase: 'playing' }));
   }, []);
 
-  // Load from save code
-  const loadSave = useCallback(({ clues, endings, loopCount }) => {
+  // Hydrate saved progress while staying on the title screen (used after login)
+  const setProgress = useCallback(({ clues = [], endings = [], loopCount = 0 }) => {
     const autoClues = [...clues];
     if (loopCount >= 2 && !autoClues.includes('loop-awareness')) autoClues.push('loop-awareness');
     if (loopCount >= 4 && !autoClues.includes('deep-awareness')) autoClues.push('deep-awareness');
-    setState({
-      ...INITIAL_STATE,
+    setState(prev => ({
+      ...prev,
       currentNodeId: loopCount > 0 ? 'intro' : 'intro-first',
+      time: INITIAL_TIME,
       loopCount,
       clues: autoClues,
       endings,
-      phase: 'playing',
-    });
+      flags: {},
+      phase: 'title',
+    }));
   }, []);
 
   // Trigger glitch -> death sequence
@@ -142,7 +144,7 @@ export default function useGameState() {
     hasFlag,
     resetLoop,
     startGame,
-    loadSave,
+    setProgress,
     triggerDeath,
     reachEnding,
     continueFromEnding,
