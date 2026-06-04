@@ -93,7 +93,7 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
   const isTense = loopCount > 0 && time >= 14 * 60 + 30;
   const clockColor = isTense
     ? 'text-red-500 clock-tense'
-    : 'text-gray-500';
+    : 'text-gray-300';
 
   // Progress: current line out of total
   const progress = node.lines.length > 1
@@ -103,7 +103,7 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
       {/* Clock — top center, more prominent */}
-      <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 text-base tracking-[0.5em] font-mono select-none ${clockColor}`}>
+      <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 text-base tracking-[0.5em] font-mono select-none drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] ${clockColor}`}>
         {formatTime(time)}
       </div>
 
