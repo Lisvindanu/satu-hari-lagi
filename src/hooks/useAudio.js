@@ -89,6 +89,93 @@ function playClueGet() {
   });
 }
 
+function playBrakeScreech() {
+  const ctx = ensureResumed();
+  const t = ctx.currentTime;
+  // High tire screech — filtered white noise, descending frequency
+  const dur = 1.4;
+  const bufSize = ctx.sampleRate * dur;
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.setValueAtTime(4000, t);
+  filter.frequency.linearRampToValueAtTime(1200, t + dur);
+  filter.Q.value = 10;
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0, t);
+  gain.gain.linearRampToValueAtTime(0.35, t + 0.05);
+  gain.gain.linearRampToValueAtTime(0.25, t + dur - 0.1);
+  gain.gain.linearRampToValueAtTime(0, t + dur);
+
+  src.connect(filter).connect(gain).connect(ctx.destination);
+  src.start(t);
+}
+
+function playCollision() {
+  const ctx = ensureResumed();
+  const t = ctx.currentTime;
+
+  // Low thud — impact boom
+  const tDur = 0.6;
+  const tBuf = ctx.createBuffer(1, ctx.sampleRate * tDur, ctx.sampleRate);
+  const tData = tBuf.getChannelData(0);
+  for (let i = 0; i < tData.length; i++) {
+    tData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.03));
+  }
+  const tSrc = ctx.createBufferSource();
+  tSrc.buffer = tBuf;
+  const tFilter = ctx.createBiquadFilter();
+  tFilter.type = 'lowpass';
+  tFilter.frequency.value = 180;
+  const tGain = ctx.createGain();
+  tGain.gain.setValueAtTime(0.6, t);
+  tGain.gain.exponentialRampToValueAtTime(0.001, t + tDur);
+  tSrc.connect(tFilter).connect(tGain).connect(ctx.destination);
+  tSrc.start(t);
+
+  // Metal crunch — mid-range burst
+  const cDur = 0.8;
+  const cBuf = ctx.createBuffer(1, ctx.sampleRate * cDur, ctx.sampleRate);
+  const cData = cBuf.getChannelData(0);
+  for (let i = 0; i < cData.length; i++) {
+    cData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.12));
+  }
+  const cSrc = ctx.createBufferSource();
+  cSrc.buffer = cBuf;
+  const cFilter = ctx.createBiquadFilter();
+  cFilter.type = 'bandpass';
+  cFilter.frequency.value = 700;
+  cFilter.Q.value = 3;
+  const cGain = ctx.createGain();
+  cGain.gain.setValueAtTime(0.3, t + 0.03);
+  cGain.gain.exponentialRampToValueAtTime(0.001, t + cDur);
+  cSrc.connect(cFilter).connect(cGain).connect(ctx.destination);
+  cSrc.start(t + 0.03);
+
+  // High glass shatter — brief high noise
+  const gDur = 0.25;
+  const gBuf = ctx.createBuffer(1, ctx.sampleRate * gDur, ctx.sampleRate);
+  const gData = gBuf.getChannelData(0);
+  for (let i = 0; i < gData.length; i++) gData[i] = Math.random() * 2 - 1;
+  const gSrc = ctx.createBufferSource();
+  gSrc.buffer = gBuf;
+  const gFilter = ctx.createBiquadFilter();
+  gFilter.type = 'highpass';
+  gFilter.frequency.value = 5000;
+  const gGain = ctx.createGain();
+  gGain.gain.setValueAtTime(0.12, t + 0.05);
+  gGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05 + gDur);
+  gSrc.connect(gFilter).connect(gGain).connect(ctx.destination);
+  gSrc.start(t + 0.05);
+}
+
 function playGlitch(duration = 2) {
   const ctx = ensureResumed();
   const bufferSize = ctx.sampleRate * duration;
@@ -304,6 +391,8 @@ export default function useAudio() {
     playChoiceHover,
     playChoiceSelect,
     playClueGet,
+    playBrakeScreech,
+    playCollision,
     playGlitch,
     playDeath,
     playHeartbeat,

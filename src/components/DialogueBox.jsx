@@ -1,25 +1,29 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
-export default function DialogueBox({ node, onChoice, hasClue, formatTime, time, audio }) {
+export default function DialogueBox({ node, onChoice, hasClue, formatTime, time, loopCount, audio }) {
   const [lineIndex, setLineIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
+  const [canAdvance, setCanAdvance] = useState(false);
   const [showChoices, setShowChoices] = useState(false);
   const tickCounterRef = useRef(0);
+  const clickLockRef = useRef(false);
 
   const currentLine = node.lines[lineIndex];
 
-  // Reset saat node berubah
+  // Reset when node changes
   useEffect(() => {
     setLineIndex(0);
     setShowChoices(false);
+    setCanAdvance(false);
   }, [node.id]);
 
-  // Efek ketik + sound
+  // Typewriter effect
   useEffect(() => {
     if (!currentLine) return;
 
     setIsTyping(true);
+    setCanAdvance(false);
     setDisplayedText('');
     tickCounterRef.current = 0;
     let i = 0;
@@ -28,7 +32,6 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
     const interval = setInterval(() => {
       if (i < text.length) {
         setDisplayedText(text.slice(0, i + 1));
-        // Play tick every 2 chars
         tickCounterRef.current++;
         if (tickCounterRef.current % 2 === 0 && audio) {
           audio.playTypeTick();
@@ -37,6 +40,8 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
       } else {
         setIsTyping(false);
         clearInterval(interval);
+        // Small delay before allowing advance — prevents accidental skip
+        setTimeout(() => setCanAdvance(true), 400);
       }
     }, 25);
 
@@ -44,13 +49,22 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
   }, [lineIndex, currentLine, audio]);
 
   const handleClick = useCallback(() => {
+    // Double-click guard
+    if (clickLockRef.current) return;
+    clickLockRef.current = true;
+    setTimeout(() => { clickLockRef.current = false; }, 350);
+
     if (audio) audio.playClick();
 
+    // Skip typing — show full text immediately, then wait for canAdvance
     if (isTyping) {
       setDisplayedText(currentLine.text);
       setIsTyping(false);
+      setTimeout(() => setCanAdvance(true), 200);
       return;
     }
+
+    if (!canAdvance) return;
 
     if (lineIndex < node.lines.length - 1) {
       setLineIndex(prev => prev + 1);
@@ -63,7 +77,7 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
         onChoice({ ending: node.ending });
       }
     }
-  }, [isTyping, lineIndex, node, currentLine, onChoice, audio]);
+  }, [isTyping, canAdvance, lineIndex, node, currentLine, onChoice, audio]);
 
   const availableChoices = (node.choices || []).filter(c =>
     !c.requiresClue || hasClue(c.requiresClue)
@@ -75,19 +89,37 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
       ? 'text-red-400'
       : 'text-amber-300';
 
-  const isTense = time >= 14 * 60 + 30;
-  const clockColor = isTense ? 'text-red-500 animate-pulse' : 'text-gray-500';
+  // Tension: only apply red/pulse on loop > 0
+  const isTense = loopCount > 0 && time >= 14 * 60 + 30;
+  const clockColor = isTense
+    ? 'text-red-500 clock-tense'
+    : 'text-gray-500';
+
+  // Progress: current line out of total
+  const progress = node.lines.length > 1
+    ? ((lineIndex) / (node.lines.length - 1)) * 100
+    : 100;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
-      {/* Jam */}
-      <div className={`absolute -top-12 right-6 text-sm tracking-[0.3em] font-mono ${clockColor}`}>
+      {/* Clock — top center, more prominent */}
+      <div className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 text-base tracking-[0.5em] font-mono select-none ${clockColor}`}>
         {formatTime(time)}
       </div>
 
-      {/* Kotak dialog */}
+      {/* Progress line */}
+      {node.lines.length > 1 && !showChoices && (
+        <div className="absolute -top-0.5 left-0 h-[1px] bg-gray-800 w-full">
+          <div
+            className="h-full bg-amber-900/50 transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      )}
+
+      {/* Dialogue box */}
       <div
-        className="bg-black/90 border-t border-gray-800 px-8 py-6 min-h-[180px] cursor-pointer backdrop-blur-sm"
+        className="bg-black/92 border-t border-gray-800/80 px-8 py-6 min-h-[180px] cursor-pointer backdrop-blur-sm"
         onClick={!showChoices ? handleClick : undefined}
       >
         {!showChoices ? (
@@ -103,9 +135,9 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
               {isTyping && <span className="cursor-blink" />}
             </p>
 
-            {!isTyping && (
+            {canAdvance && !isTyping && (
               <div className="text-gray-700 text-xs mt-4 tracking-widest animate-pulse">
-                ▼ klik untuk lanjut
+                ▼
               </div>
             )}
           </div>
@@ -128,7 +160,7 @@ export default function DialogueBox({ node, onChoice, hasClue, formatTime, time,
                 {choice.text}
                 {choice.timeCost > 0 && (
                   <span className="float-right text-gray-600 text-xs mt-0.5">
-                    +{choice.timeCost} menit
+                    +{choice.timeCost}m
                   </span>
                 )}
               </button>

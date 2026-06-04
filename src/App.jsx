@@ -136,6 +136,7 @@ export default function App() {
         hasClue={hasClue}
         formatTime={formatTime}
         time={state.time}
+        loopCount={state.loopCount}
         audio={audio}
       />
       <ClueNotification clues={state.clues} />

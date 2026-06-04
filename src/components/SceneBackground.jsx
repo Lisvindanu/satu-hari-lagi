@@ -33,6 +33,14 @@ const BACKGROUNDS = {
     src: '/assets/bg/kafe-tutup.png',
     ambiance: 'cold',
   },
+  'scene-tabrakan': {
+    src: '/assets/bg/scene-tabrakan.png',
+    ambiance: 'cold',
+  },
+  'bekas-rem': {
+    src: '/assets/bg/bekas-rem.png',
+    ambiance: 'cold',
+  },
 };
 
 export default function SceneBackground({ backgroundId }) {

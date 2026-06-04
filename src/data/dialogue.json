@@ -1,4 +1,23 @@
 {
+  "intro-first": {
+    "id": "intro-first",
+    "background": "cafe-siang",
+    "character": null,
+    "lines": [
+      { "speaker": "narasi", "text": "Kamu duduk di meja pojok sebuah coffee shop kecil di Bandung." },
+      { "speaker": "narasi", "text": "Laptop terbuka. VS Code. Proyek yang belum selesai. Deadline minggu depan." },
+      { "speaker": "narasi", "text": "Di luar, langit abu-abu. Sepertinya mau hujan." },
+      { "speaker": "narasi", "text": "Kopi di mejamu sudah dingin. Kamu tidak ingat memesannya." },
+      { "speaker": "narasi", "text": "Jam di pojok layar: 13:00." },
+      { "speaker": "narasi", "text": "Kamu belum menyentuh satu baris kode pun." }
+    ],
+    "choices": [
+      { "text": "Pesan kopi baru", "nextNode": "pesan-kopi", "timeCost": 15 },
+      { "text": "Coba fokus ngerjain proyek", "nextNode": "fokus-proyek", "timeCost": 30 },
+      { "text": "Lihat sekeliling kafe dulu", "nextNode": "lihat-sekeliling", "timeCost": 10 }
+    ]
+  },
+
   "intro": {
     "id": "intro",
     "background": "cafe-siang",
@@ -23,9 +42,11 @@
     "background": "cafe-siang",
     "character": "raka-normal",
     "lines": [
-      { "speaker": "narasi", "text": "Kamu berjalan ke counter. Barista di balik mesin espresso menoleh." },
+      { "speaker": "narasi", "text": "Kamu berjalan ke counter. Kafe ini kecil — hanya enam meja." },
+      { "speaker": "narasi", "text": "Barista di balik mesin espresso menoleh. Badannya tinggi, rambut berantakan, pakai apron hitam bertuliskan nama: Raka." },
       { "speaker": "Raka", "text": "Eh, dateng lagi! Biasa ya? Americano?" },
-      { "speaker": "narasi", "text": "'Dateng lagi'. Padahal kamu merasa baru pertama kali ke sini hari ini." }
+      { "speaker": "narasi", "text": "'Dateng lagi'. Kamu baru masuk. Kamu yakin itu." },
+      { "speaker": "narasi", "text": "Tapi Raka menyebutnya seperti fakta biasa. Seperti kamu langganan." }
     ],
     "choices": [
       { "text": "\"Iya, biasa aja.\"", "nextNode": "kopi-biasa", "timeCost": 10 },
@@ -46,7 +67,11 @@
     "character": "raka-senyum",
     "lines": [
       { "speaker": "Raka", "text": "Sip! Americano satu. Duduk dulu ya, nanti gue anterin." },
-      { "speaker": "narasi", "text": "Kamu kembali ke meja. Kopinya datang 5 menit kemudian. Hangat. Pahit. Familiar." }
+      { "speaker": "narasi", "text": "Kamu kembali ke meja. Duduk. Buka laptop lagi." },
+      { "speaker": "narasi", "text": "Lima menit kemudian, Raka datang. Kopinya hangat. Bau panggang yang familiar." },
+      { "speaker": "Raka", "text": "Nih. Jangan lupa diminum anget-anget, biar ga sia-sia kayak tadi." },
+      { "speaker": "narasi", "text": "'Kayak tadi'." },
+      { "speaker": "narasi", "text": "Kamu tidak bertanya. Kamu minum kopinya. Pahit. Sempurna." }
     ],
     "choices": [
       { "text": "Fokus ngerjain proyek", "nextNode": "fokus-proyek", "timeCost": 30 },
@@ -155,11 +180,14 @@
     "background": "cafe-siang",
     "character": null,
     "lines": [
-      { "speaker": "narasi", "text": "Kamu membuka laptop. Kode yang sama. Error yang sama. Console merah menyala." },
-      { "speaker": "narasi", "text": "30 menit berlalu. Kamu tidak menyelesaikan apa-apa." },
-      { "speaker": "narasi", "text": "Tapi di antara baris-baris kode, kamu menyadari sesuatu di terminal:" },
+      { "speaker": "narasi", "text": "Kamu membuka laptop. Kode yang sama. Error yang sama." },
+      { "speaker": "narasi", "text": "Console merah menyala. NullPointerException di line 247. Kamu sudah melihat error ini sebelumnya." },
+      { "speaker": "narasi", "text": "Tapi kapan? Kamu baru mulai ngerjain ini hari ini." },
+      { "speaker": "narasi", "text": "Jari-jarimu bergerak sendiri, langsung ke bagian yang error. Seperti otot yang sudah hafal." },
+      { "speaker": "narasi", "text": "30 menit berlalu. Kamu tidak menyelesaikan apa-apa. Tapi kamu juga tidak bisa fokus." },
+      { "speaker": "narasi", "text": "Sesuatu di terminal menarik perhatianmu di antara baris-baris error:" },
       { "speaker": "narasi", "text": "\"SEGFAULT at 15:00:00 — process terminated. Restarting...\"" },
-      { "speaker": "narasi", "text": "Itu bukan error dari proyekmu." }
+      { "speaker": "narasi", "text": "Itu bukan error dari proyekmu. Kamu yakin itu." }
     ],
     "choices": [
       { "text": "Periksa terminal lebih lanjut", "nextNode": "terminal-clue", "timeCost": 15, "givesClue": "segfault-clue" },
@@ -242,9 +270,10 @@
     "background": "cafe-siang",
     "character": "sosok-diam",
     "lines": [
-      { "speaker": "narasi", "text": "Orang itu duduk di sudut paling gelap. Jaket tebal, hoodie menutupi sebagian wajah." },
-      { "speaker": "narasi", "text": "Di tangannya, HP menyala — dia sedang bermain game MOBA. Terdengar suara skill dan efek dari speaker HP-nya." },
-      { "speaker": "narasi", "text": "Kamu duduk di sebelahnya. Dia tidak mengangkat muka." },
+      { "speaker": "narasi", "text": "Orang itu duduk di sudut paling gelap. Jaket tebal meski kafe hangat. Hoodie menutupi hampir seluruh wajahnya." },
+      { "speaker": "narasi", "text": "Di tangannya, HP menyala — dia sedang bermain game MOBA. Suara skill terdengar kecil dari speaker-nya." },
+      { "speaker": "narasi", "text": "Kamu duduk di sebelahnya. Rasanya seperti dia tidak terkejut sama sekali." },
+      { "speaker": "narasi", "text": "Dia tidak mengangkat muka. Tidak bereaksi. Jarinya terus mengetuk layar." },
       { "speaker": "???", "text": "...Ranked lagi susah hari ini." }
     ],
     "choices": [
@@ -511,13 +540,16 @@
 
   "menuju-kematian": {
     "id": "menuju-kematian",
-    "background": "perempatan",
+    "background": "scene-tabrakan",
     "character": null,
     "lines": [
       { "speaker": "narasi", "text": "Jam 15:00." },
-      { "speaker": "narasi", "text": "Dari arah perempatan, terdengar suara ban mendecit." },
-      { "speaker": "narasi", "text": "Klakson panjang. Suara benturan. Keras." },
-      { "speaker": "narasi", "text": "Lalu hening." },
+      { "speaker": "narasi", "text": "Dari arah perempatan —" },
+      { "speaker": "narasi", "text": "Suara ban mendecit di aspal basah." },
+      { "speaker": "narasi", "text": "Klakson panjang. Satu detik. Dua detik." },
+      { "speaker": "narasi", "text": "Benturan." },
+      { "speaker": "narasi", "text": "Keras sekali." },
+      { "speaker": "narasi", "text": "Lalu hening yang terlalu mendadak." },
       { "speaker": "narasi", "text": "Pandanganmu menggelap." }
     ],
     "choices": [],

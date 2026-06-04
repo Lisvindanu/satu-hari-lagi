@@ -129,3 +129,28 @@ body {
   from { opacity: 0; transform: translateX(-50%) translateY(20px); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+
+/* Clue toast animations */
+.clue-enter {
+  animation: clueIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.clue-exit {
+  animation: clueOut 0.4s ease-in forwards;
+}
+@keyframes clueIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes clueOut {
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to   { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+}
+
+/* Clock pulse on tension */
+.clock-tense {
+  animation: clockPulse 0.8s ease-in-out infinite;
+}
+@keyframes clockPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}

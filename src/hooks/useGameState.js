@@ -4,7 +4,7 @@ const INITIAL_TIME = 13 * 60; // 13:00 in minutes
 const DEATH_TIME = 15 * 60;   // 15:00 in minutes
 
 const INITIAL_STATE = {
-  currentNodeId: 'intro',
+  currentNodeId: 'intro-first',
   time: INITIAL_TIME,
   loopCount: 0,
   // Clues persist across loops (memory mechanic)
