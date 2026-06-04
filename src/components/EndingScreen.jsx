@@ -320,10 +320,10 @@ export default function EndingScreen({ endingId, loopCount, onRestart, onContinu
   }, [ending]);
 
   return (
-    <div className={`fixed inset-0 bg-black ${ending.bgTone} flex flex-col items-center justify-center z-50`}>
-      <div className="absolute inset-0 screentone opacity-10" />
+    <div className={`fixed inset-0 bg-black ${ending.bgTone} flex flex-col items-center z-50 overflow-y-auto`}>
+      <div className="absolute inset-0 screentone opacity-10 pointer-events-none" />
 
-      <div className="relative z-10 text-center max-w-lg px-8">
+      <div className="relative z-10 text-center max-w-lg px-8 py-16 w-full">
         {/* Title */}
         <div className="animate-fadeIn">
           <h1 className={`text-5xl font-bold ${ending.color} ink-text tracking-wider mb-2`}>
