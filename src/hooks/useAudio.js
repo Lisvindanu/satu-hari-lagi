@@ -91,34 +91,56 @@ function playClueGet() {
 
 function playBrakeScreech() {
   const ctx = ensureResumed();
-  const t = ctx.currentTime;
-  // High tire screech — filtered white noise, descending frequency
-  const dur = 1.4;
-  const bufSize = ctx.sampleRate * dur;
-  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
-
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-
-  const filter = ctx.createBiquadFilter();
-  filter.type = 'bandpass';
-  filter.frequency.setValueAtTime(4000, t);
-  filter.frequency.linearRampToValueAtTime(1200, t + dur);
-  filter.Q.value = 10;
-
-  const gain = ctx.createGain();
-  gain.gain.setValueAtTime(0, t);
-  gain.gain.linearRampToValueAtTime(0.35, t + 0.05);
-  gain.gain.linearRampToValueAtTime(0.25, t + dur - 0.1);
-  gain.gain.linearRampToValueAtTime(0, t + dur);
-
-  src.connect(filter).connect(gain).connect(ctx.destination);
-  src.start(t);
+  fetch('/assets/sfx/brake-screech.mp3')
+    .then(r => r.arrayBuffer())
+    .then(buf => ctx.decodeAudioData(buf))
+    .then(decoded => {
+      const src = ctx.createBufferSource();
+      src.buffer = decoded;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.8;
+      src.connect(gain).connect(ctx.destination);
+      src.start();
+    })
+    .catch(() => {
+      // fallback synthesized
+      const t = ctx.currentTime;
+      const dur = 1.4;
+      const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(4000, t);
+      filter.frequency.linearRampToValueAtTime(1200, t + dur);
+      filter.Q.value = 10;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.35, t);
+      gain.gain.linearRampToValueAtTime(0, t + dur);
+      src.connect(filter).connect(gain).connect(ctx.destination);
+      src.start(t);
+    });
 }
 
 function playCollision() {
+  const ctx = ensureResumed();
+  fetch('/assets/sfx/collision.mp3')
+    .then(r => r.arrayBuffer())
+    .then(buf => ctx.decodeAudioData(buf))
+    .then(decoded => {
+      const src = ctx.createBufferSource();
+      src.buffer = decoded;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.9;
+      src.connect(gain).connect(ctx.destination);
+      src.start();
+    })
+    .catch(() => _playCollisionSynth());
+}
+
+function _playCollisionSynth() {
   const ctx = ensureResumed();
   const t = ctx.currentTime;
 
