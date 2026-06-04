@@ -13,6 +13,9 @@ import EndingScreen from './components/EndingScreen';
 import ClueNotification from './components/ClueNotification';
 import Leaderboard from './components/Leaderboard';
 import EndingGallery from './components/EndingGallery';
+import AchievementNotification from './components/AchievementNotification';
+import AchievementGallery from './components/AchievementGallery';
+import { ACHIEVEMENTS, checkAchievements } from './data/achievements';
 import { encodeSave } from './utils/saveCode';
 
 const DEATH_TIME = 15 * 60;
@@ -37,9 +40,13 @@ export default function App() {
   const speedrun = useSpeedrun();
   const prevBgRef = useRef(null);
   const prevClueCountRef = useRef(0);
+  const prevPhaseRef = useRef('title');
+  const prevAchievementsRef = useRef(new Set());
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
+  const [showAchievements, setShowAchievements] = useState(false);
   const [endingElapsed, setEndingElapsed] = useState(null);
+  const [achievementQueue, setAchievementQueue] = useState([]);
 
   const currentNode = dialogueData[state.currentNodeId];
 
@@ -77,6 +84,39 @@ export default function App() {
     prevClueCountRef.current = state.clues.length;
   }, [state.clues.length, audio]);
 
+  // Achievement tracking
+  useEffect(() => {
+    const current = checkAchievements({ endings: state.endings, clues: state.clues, loopCount: state.loopCount });
+    const wasTitle = prevPhaseRef.current === 'title';
+    const isNowActive = state.phase === 'playing' || state.phase === 'ending';
+
+    if (wasTitle && isNowActive) {
+      // Just transitioned from title (start/load) — init without notifying
+      prevAchievementsRef.current = current;
+    } else if (isNowActive) {
+      const newOnes = [...current].filter(id => !prevAchievementsRef.current.has(id));
+      if (newOnes.length > 0) {
+        const toAdd = newOnes.map(id => ACHIEVEMENTS.find(a => a.id === id)).filter(Boolean);
+        setAchievementQueue(q => [...q, ...toAdd]);
+      }
+      prevAchievementsRef.current = current;
+    }
+
+    prevPhaseRef.current = state.phase;
+  }, [state.endings, state.clues, state.loopCount, state.phase]);
+
+  // Speedrun achievement (session-only)
+  useEffect(() => {
+    if (endingElapsed !== null && endingElapsed <= 5 * 60 * 1000) {
+      const a = ACHIEVEMENTS.find(x => x.id === 'speedrunner');
+      if (a) setAchievementQueue(q => [...q, a]);
+    }
+  }, [endingElapsed]);
+
+  const dismissAchievement = useCallback(() => {
+    setAchievementQueue(q => q.slice(1));
+  }, []);
+
   const handleChoice = useCallback((choice) => {
     audio.playChoiceSelect();
 
@@ -105,6 +145,8 @@ export default function App() {
     triggerDeath();
   }, [triggerDeath]);
 
+  const unlockedAchievementIds = [...checkAchievements({ endings: state.endings, clues: state.clues, loopCount: state.loopCount })];
+
   // Title screen
   if (state.phase === 'title') {
     return (
@@ -116,10 +158,13 @@ export default function App() {
           audio={audio}
           onShowLeaderboard={() => setShowLeaderboard(true)}
           onShowGallery={() => setShowGallery(true)}
+          onShowAchievements={() => setShowAchievements(true)}
           hasEndings={state.endings.length > 0}
+          achievementCount={unlockedAchievementIds.length}
         />
         {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
         {showGallery && <EndingGallery unlockedEndings={state.endings} onClose={() => setShowGallery(false)} />}
+        {showAchievements && <AchievementGallery unlockedIds={unlockedAchievementIds} onClose={() => setShowAchievements(false)} />}
       </>
     );
   }
@@ -178,6 +223,7 @@ export default function App() {
         audio={audio}
       />
       <ClueNotification clues={state.clues} />
+      <AchievementNotification achievement={achievementQueue[0] || null} onDismiss={dismissAchievement} />
     </div>
   );
 }

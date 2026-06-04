@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { decodeSave } from '../utils/saveCode';
 
-export default function TitleScreen({ onStart, onLoadSave, loopCount, audio, onShowLeaderboard, onShowGallery, hasEndings }) {
+export default function TitleScreen({ onStart, onLoadSave, loopCount, audio, onShowLeaderboard, onShowGallery, onShowAchievements, hasEndings, achievementCount }) {
   const [codeInput, setCodeInput] = useState('');
   const [codeError, setCodeError] = useState(false);
   const [showCodeInput, setShowCodeInput] = useState(false);
@@ -90,7 +90,7 @@ export default function TitleScreen({ onStart, onLoadSave, loopCount, audio, onS
           )}
         </div>
 
-        {/* Ending gallery + Leaderboard */}
+        {/* Ending gallery + Achievements + Leaderboard */}
         <div className="mt-6 flex flex-col items-center gap-3">
           {hasEndings && (
             <button
@@ -100,6 +100,12 @@ export default function TitleScreen({ onStart, onLoadSave, loopCount, audio, onS
               ending gallery
             </button>
           )}
+          <button
+            onClick={onShowAchievements}
+            className="text-gray-700 text-xs tracking-widest hover:text-amber-700 transition-colors cursor-pointer"
+          >
+            pencapaian{achievementCount > 0 ? ` (${achievementCount})` : ''}
+          </button>
           <button
             onClick={onShowLeaderboard}
             className="text-gray-700 text-xs tracking-widest hover:text-gray-500 transition-colors cursor-pointer"
