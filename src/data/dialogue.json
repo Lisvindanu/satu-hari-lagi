@@ -537,6 +537,12 @@
         "nextNode": "ending-acceptance",
         "timeCost": 0,
         "requiresClue": "deep-awareness"
+      },
+      {
+        "text": "Tarik dia ke trotoar — lalu ambil tempatnya. Kamu yang tinggal.",
+        "nextNode": "ending-pengorbanan",
+        "timeCost": 0,
+        "requiresClue": "deep-awareness"
       }
     ]
   },
@@ -743,6 +749,7 @@
       { "speaker": "narasi", "text": "Kamu berjalan ke pintu. Hujan menanti." }
     ],
     "choices": [
+      { "text": "Habiskan kopi. Kali ini, benar-benar pamit.", "ending": "kopi-terakhir", "timeCost": 0 },
       { "text": "Pergi ke perempatan", "nextNode": "perempatan-awal", "timeCost": 5, "givesClue": "tau-harus-ke-perempatan" }
     ]
   },
