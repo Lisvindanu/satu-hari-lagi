@@ -3,7 +3,9 @@ import useGameState from './hooks/useGameState';
 import useAudio from './hooks/useAudio';
 import useSpeedrun from './hooks/useSpeedrun';
 import dialogueData from './data/dialogue.json';
+import LandingScreen from './components/LandingScreen';
 import TitleScreen from './components/TitleScreen';
+import PauseMenu from './components/PauseMenu';
 import DialogueBox from './components/DialogueBox';
 import SceneBackground from './components/SceneBackground';
 import CharacterSprite from './components/CharacterSprite';
@@ -30,6 +32,7 @@ export default function App() {
     resetLoop,
     startGame,
     setProgress,
+    quitToTitle,
     triggerDeath,
     reachEnding,
     continueFromEnding,
@@ -49,6 +52,8 @@ export default function App() {
   const [endingElapsed, setEndingElapsed] = useState(null);
   const [achievementQueue, setAchievementQueue] = useState([]);
   const [user, setUser] = useState(null);
+  const [entered, setEntered] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   const currentNode = dialogueData[state.currentNodeId];
 
@@ -185,6 +190,11 @@ export default function App() {
 
   const unlockedAchievementIds = [...checkAchievements({ endings: state.endings, clues: state.clues, loopCount: state.loopCount })];
 
+  // Landing page (gate shown before the title menu)
+  if (state.phase === 'title' && !entered) {
+    return <LandingScreen onEnter={() => setEntered(true)} audio={audio} />;
+  }
+
   // Title screen
   if (state.phase === 'title') {
     return (
@@ -263,6 +273,20 @@ export default function App() {
       />
       <ClueNotification clues={state.clues} />
       <AchievementNotification achievement={achievementQueue[0] || null} onDismiss={dismissAchievement} />
+      <button
+        onClick={() => { audio.playClick(); setPaused(true); }}
+        className="fixed top-4 right-4 z-50 text-gray-400 hover:text-white text-xs tracking-[0.3em] uppercase bg-black/50 backdrop-blur-sm px-3 py-1 transition-colors cursor-pointer"
+        aria-label="Jeda"
+      >
+        ❚❚
+      </button>
+      {paused && (
+        <PauseMenu
+          audio={audio}
+          onResume={() => setPaused(false)}
+          onQuit={() => { setPaused(false); speedrun.stop(); quitToTitle(); }}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,11 @@
 import { useRef, useCallback, useEffect, useMemo } from 'react';
 
 let audioCtx = null;
+let masterGain = null;
+const MUTE_KEY = 'shl_muted';
+let muted = (() => {
+  try { return localStorage.getItem(MUTE_KEY) === '1'; } catch { return false; }
+})();
 
 function getCtx() {
   if (!audioCtx) {
@@ -9,10 +14,34 @@ function getCtx() {
   return audioCtx;
 }
 
+// Master gain — single point for muting all output
+function getMaster() {
+  const ctx = getCtx();
+  if (!masterGain) {
+    masterGain = ctx.createGain();
+    masterGain.gain.value = muted ? 0 : 1;
+    masterGain.connect(ctx.destination);
+  }
+  return masterGain;
+}
+
+function isMuted() {
+  return muted;
+}
+
+function setMuted(value) {
+  muted = !!value;
+  try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch { /* ignore */ }
+  const ctx = getCtx();
+  getMaster().gain.setTargetAtTime(muted ? 0 : 1, ctx.currentTime, 0.02);
+  return muted;
+}
+
 // Resume audio context on first user interaction
 function ensureResumed() {
   const ctx = getCtx();
   if (ctx.state === 'suspended') ctx.resume();
+  getMaster();
   return ctx;
 }
 
@@ -26,7 +55,7 @@ function playTypeTick() {
   osc.frequency.value = 800 + Math.random() * 400;
   gain.gain.setValueAtTime(0.03, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-  osc.connect(gain).connect(ctx.destination);
+  osc.connect(gain).connect(getMaster());
   osc.start(ctx.currentTime);
   osc.stop(ctx.currentTime + 0.05);
 }
@@ -39,7 +68,7 @@ function playClick() {
   osc.frequency.value = 600;
   gain.gain.setValueAtTime(0.08, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
-  osc.connect(gain).connect(ctx.destination);
+  osc.connect(gain).connect(getMaster());
   osc.start(ctx.currentTime);
   osc.stop(ctx.currentTime + 0.1);
 }
@@ -52,7 +81,7 @@ function playChoiceHover() {
   osc.frequency.value = 440;
   gain.gain.setValueAtTime(0.04, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-  osc.connect(gain).connect(ctx.destination);
+  osc.connect(gain).connect(getMaster());
   osc.start(ctx.currentTime);
   osc.stop(ctx.currentTime + 0.08);
 }
@@ -67,7 +96,7 @@ function playChoiceSelect() {
     osc.frequency.value = freq;
     gain.gain.setValueAtTime(0.06, t + i * 0.08);
     gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.15);
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(getMaster());
     osc.start(t + i * 0.08);
     osc.stop(t + i * 0.08 + 0.15);
   });
@@ -83,7 +112,7 @@ function playClueGet() {
     osc.frequency.value = freq;
     gain.gain.setValueAtTime(0.07, t + i * 0.1);
     gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.3);
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(getMaster());
     osc.start(t + i * 0.1);
     osc.stop(t + i * 0.1 + 0.3);
   });
@@ -99,7 +128,7 @@ function playBrakeScreech() {
       src.buffer = decoded;
       const gain = ctx.createGain();
       gain.gain.value = 0.8;
-      src.connect(gain).connect(ctx.destination);
+      src.connect(gain).connect(getMaster());
       src.start();
     })
     .catch(() => {
@@ -119,7 +148,7 @@ function playBrakeScreech() {
       const gain = ctx.createGain();
       gain.gain.setValueAtTime(0.35, t);
       gain.gain.linearRampToValueAtTime(0, t + dur);
-      src.connect(filter).connect(gain).connect(ctx.destination);
+      src.connect(filter).connect(gain).connect(getMaster());
       src.start(t);
     });
 }
@@ -134,7 +163,7 @@ function playCollision() {
       src.buffer = decoded;
       const gain = ctx.createGain();
       gain.gain.value = 0.9;
-      src.connect(gain).connect(ctx.destination);
+      src.connect(gain).connect(getMaster());
       src.start();
     })
     .catch(() => _playCollisionSynth());
@@ -159,7 +188,7 @@ function _playCollisionSynth() {
   const tGain = ctx.createGain();
   tGain.gain.setValueAtTime(0.6, t);
   tGain.gain.exponentialRampToValueAtTime(0.001, t + tDur);
-  tSrc.connect(tFilter).connect(tGain).connect(ctx.destination);
+  tSrc.connect(tFilter).connect(tGain).connect(getMaster());
   tSrc.start(t);
 
   // Metal crunch — mid-range burst
@@ -178,7 +207,7 @@ function _playCollisionSynth() {
   const cGain = ctx.createGain();
   cGain.gain.setValueAtTime(0.3, t + 0.03);
   cGain.gain.exponentialRampToValueAtTime(0.001, t + cDur);
-  cSrc.connect(cFilter).connect(cGain).connect(ctx.destination);
+  cSrc.connect(cFilter).connect(cGain).connect(getMaster());
   cSrc.start(t + 0.03);
 
   // High glass shatter — brief high noise
@@ -194,7 +223,7 @@ function _playCollisionSynth() {
   const gGain = ctx.createGain();
   gGain.gain.setValueAtTime(0.12, t + 0.05);
   gGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05 + gDur);
-  gSrc.connect(gFilter).connect(gGain).connect(ctx.destination);
+  gSrc.connect(gFilter).connect(gGain).connect(getMaster());
   gSrc.start(t + 0.05);
 }
 
@@ -215,7 +244,7 @@ function playGlitch(duration = 2) {
   filter.Q.value = 5;
   gain.gain.setValueAtTime(0.15, ctx.currentTime);
   gain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
-  source.connect(filter).connect(gain).connect(ctx.destination);
+  source.connect(filter).connect(gain).connect(getMaster());
   source.start();
 
   // Low rumble
@@ -226,7 +255,7 @@ function playGlitch(duration = 2) {
   osc.frequency.linearRampToValueAtTime(20, ctx.currentTime + duration);
   rumbleGain.gain.setValueAtTime(0.12, ctx.currentTime);
   rumbleGain.gain.linearRampToValueAtTime(0, ctx.currentTime + duration);
-  osc.connect(rumbleGain).connect(ctx.destination);
+  osc.connect(rumbleGain).connect(getMaster());
   osc.start();
   osc.stop(ctx.currentTime + duration);
 }
@@ -243,7 +272,7 @@ function playDeath() {
   osc.frequency.exponentialRampToValueAtTime(20, t + 2);
   gain.gain.setValueAtTime(0.2, t);
   gain.gain.exponentialRampToValueAtTime(0.001, t + 2);
-  osc.connect(gain).connect(ctx.destination);
+  osc.connect(gain).connect(getMaster());
   osc.start(t);
   osc.stop(t + 2);
 
@@ -255,7 +284,7 @@ function playDeath() {
   gain2.gain.setValueAtTime(0, t + 0.5);
   gain2.gain.linearRampToValueAtTime(0.05, t + 1);
   gain2.gain.linearRampToValueAtTime(0, t + 3);
-  osc2.connect(gain2).connect(ctx.destination);
+  osc2.connect(gain2).connect(getMaster());
   osc2.start(t + 0.5);
   osc2.stop(t + 3);
 }
@@ -270,7 +299,7 @@ function playHeartbeat() {
     osc.frequency.value = 50;
     gain.gain.setValueAtTime(0.12, t + offset);
     gain.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.2);
-    osc.connect(gain).connect(ctx.destination);
+    osc.connect(gain).connect(getMaster());
     osc.start(t + offset);
     osc.stop(t + offset + 0.2);
   });
@@ -298,7 +327,7 @@ function createRainLoop() {
   const gain = ctx.createGain();
   gain.gain.value = 0;
 
-  source.connect(filter).connect(gain).connect(ctx.destination);
+  source.connect(filter).connect(gain).connect(getMaster());
   source.start();
 
   return { source, gain, fadeIn: () => {
@@ -335,7 +364,7 @@ function createCafeAmbience() {
   const gain = ctx.createGain();
   gain.gain.value = 0;
 
-  source.connect(filter).connect(gain).connect(ctx.destination);
+  source.connect(filter).connect(gain).connect(getMaster());
   source.start();
 
   return { source, gain, fadeIn: () => {
@@ -422,5 +451,7 @@ export default function useAudio() {
     stopAllAmbience,
     startHeartbeat,
     stopHeartbeat,
+    setMuted,
+    isMuted,
   }), [startAmbience, stopAllAmbience, startHeartbeat, stopHeartbeat]);
 }

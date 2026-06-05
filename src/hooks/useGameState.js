@@ -102,6 +102,17 @@ export default function useGameState() {
     }));
   }, []);
 
+  // Abandon current run and return to title — keeps progress, resets the loop
+  const quitToTitle = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      phase: 'title',
+      currentNodeId: prev.loopCount > 0 ? 'intro' : 'intro-first',
+      time: INITIAL_TIME,
+      flags: {},
+    }));
+  }, []);
+
   // Trigger glitch -> death sequence
   const triggerDeath = useCallback(() => {
     setState(prev => ({ ...prev, phase: 'dead' }));
@@ -145,6 +156,7 @@ export default function useGameState() {
     resetLoop,
     startGame,
     setProgress,
+    quitToTitle,
     triggerDeath,
     reachEnding,
     continueFromEnding,
