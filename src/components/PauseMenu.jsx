@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 export default function PauseMenu({ onResume, onQuit, audio }) {
   const [muted, setMuted] = useState(audio ? audio.isMuted() : false);
-  const [confirmQuit, setConfirmQuit] = useState(false);
 
   const toggleMute = () => {
     if (!audio) return;
@@ -40,32 +39,12 @@ export default function PauseMenu({ onResume, onQuit, audio }) {
             {muted ? 'suara: mati' : 'suara: hidup'}
           </button>
 
-          {!confirmQuit ? (
-            <button
-              onClick={() => setConfirmQuit(true)}
-              className="text-gray-700 text-xs tracking-[0.4em] uppercase hover:text-red-700 transition-colors duration-300 cursor-pointer mt-2"
-            >
-              keluar ke menu
-            </button>
-          ) : (
-            <div className="flex flex-col items-center gap-3 mt-2 animate-fadeIn">
-              <p className="text-gray-500 text-xs tracking-widest">progres loop ini hilang. yakin?</p>
-              <div className="flex gap-6">
-                <button
-                  onClick={onQuit}
-                  className="text-red-700 text-xs tracking-[0.3em] uppercase hover:text-red-400 transition-colors cursor-pointer"
-                >
-                  keluar
-                </button>
-                <button
-                  onClick={() => setConfirmQuit(false)}
-                  className="text-gray-600 text-xs tracking-[0.3em] uppercase hover:text-gray-400 transition-colors cursor-pointer"
-                >
-                  batal
-                </button>
-              </div>
-            </div>
-          )}
+          <button
+            onClick={onQuit}
+            className="text-gray-700 text-xs tracking-[0.4em] uppercase hover:text-amber-300 transition-colors duration-300 cursor-pointer mt-2"
+          >
+            keluar ke menu
+          </button>
         </div>
       </div>
     </div>
