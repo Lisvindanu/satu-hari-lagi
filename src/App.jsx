@@ -27,6 +27,7 @@ export default function App() {
   const {
     state,
     goToNode,
+    setCurrentLine,
     addClue,
     hasClue,
     resetLoop,
@@ -265,6 +266,8 @@ export default function App() {
       <DialogueBox
         node={currentNode}
         onChoice={handleChoice}
+        onLineChange={setCurrentLine}
+        startLine={state.currentLine}
         hasClue={hasClue}
         formatTime={formatTime}
         time={state.time}

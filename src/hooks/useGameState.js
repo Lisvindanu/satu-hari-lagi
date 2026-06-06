@@ -5,6 +5,7 @@ const DEATH_TIME = 15 * 60;   // 15:00 in minutes
 
 const INITIAL_STATE = {
   currentNodeId: 'intro-first',
+  currentLine: 0,
   time: INITIAL_TIME,
   loopCount: 0,
   // Clues persist across loops (memory mechanic)
@@ -36,8 +37,13 @@ export default function useGameState() {
       if (newTime >= DEATH_TIME) {
         return { ...prev, time: DEATH_TIME, phase: 'glitch' };
       }
-      return { ...prev, currentNodeId: nodeId, time: newTime };
+      return { ...prev, currentNodeId: nodeId, currentLine: 0, time: newTime };
     });
+  }, []);
+
+  // Track the dialogue line being read so a resumed run lands on the same spot
+  const setCurrentLine = useCallback((line) => {
+    setState(prev => (prev.currentLine === line ? prev : { ...prev, currentLine: line }));
   }, []);
 
   const addClue = useCallback((clueId) => {
@@ -93,6 +99,7 @@ export default function useGameState() {
     setState(prev => ({
       ...prev,
       currentNodeId: loopCount > 0 ? 'intro' : 'intro-first',
+      currentLine: 0,
       time: INITIAL_TIME,
       loopCount,
       clues: autoClues,
@@ -135,6 +142,7 @@ export default function useGameState() {
       ...prev,
       phase: 'playing',
       currentNodeId: nodeId,
+      currentLine: 0,
       time: time || prev.time,
     }));
   }, []);
@@ -143,6 +151,7 @@ export default function useGameState() {
     state,
     advanceTime,
     goToNode,
+    setCurrentLine,
     addClue,
     setFlag,
     hasClue,

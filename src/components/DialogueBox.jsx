@@ -1,22 +1,31 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
-export default function DialogueBox({ node, onChoice, hasClue, formatTime, time, loopCount, audio }) {
-  const [lineIndex, setLineIndex] = useState(0);
+export default function DialogueBox({ node, onChoice, onLineChange, startLine = 0, hasClue, formatTime, time, loopCount, audio }) {
+  const [lineIndex, setLineIndex] = useState(() => Math.min(startLine, node.lines.length - 1));
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
   const [canAdvance, setCanAdvance] = useState(false);
   const [showChoices, setShowChoices] = useState(false);
   const tickCounterRef = useRef(0);
   const clickLockRef = useRef(false);
+  const mountedNodeRef = useRef(node.id);
 
   const currentLine = node.lines[lineIndex];
 
-  // Reset when node changes
+  // Reset only when the node actually changes (not on first mount / resume)
   useEffect(() => {
-    setLineIndex(0);
-    setShowChoices(false);
-    setCanAdvance(false);
+    if (mountedNodeRef.current !== node.id) {
+      mountedNodeRef.current = node.id;
+      setLineIndex(0);
+      setShowChoices(false);
+      setCanAdvance(false);
+    }
   }, [node.id]);
+
+  // Report current line up so a resumed run lands on the same spot
+  useEffect(() => {
+    if (onLineChange) onLineChange(lineIndex);
+  }, [lineIndex, onLineChange]);
 
   // Typewriter effect
   useEffect(() => {
