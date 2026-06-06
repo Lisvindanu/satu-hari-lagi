@@ -9,6 +9,7 @@ const CHARACTERS = {
   'sosok-menyeringai': { src: '/assets/characters/sosok-menyeringai.png', position: 'left' },
   'sosok-tua': { src: '/assets/characters/sosok-tua.png', position: 'left' },
   'raka-sedih': { src: '/assets/characters/raka-sedih.png', position: 'right' },
+  'mc-doppelganger': { src: '/assets/characters/mc-doppelganger.png', position: 'right' },
 };
 
 export default function CharacterSprite({ characterId }) {

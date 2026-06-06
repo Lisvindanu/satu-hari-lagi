@@ -41,6 +41,18 @@ const BACKGROUNDS = {
     src: '/assets/bg/bekas-rem.png',
     ambiance: 'cold',
   },
+  'tangga': {
+    src: '/assets/bg/tangga.png',
+    ambiance: 'cold',
+  },
+  'lantai-dua': {
+    src: '/assets/bg/lantai-dua.png',
+    ambiance: 'cold',
+  },
+  'cafe-pudar': {
+    src: '/assets/bg/cafe-pudar.png',
+    ambiance: 'cold',
+  },
 };
 
 const MADNESS_GRAYSCALE = [0, 0.1, 0.28, 0.5, 0.78];

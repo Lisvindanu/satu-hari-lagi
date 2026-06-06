@@ -899,7 +899,7 @@
 
   "melawan-takdir": {
     "id": "melawan-takdir",
-    "background": "cafe-mendung",
+    "background": "cafe-pudar",
     "character": null,
     "lines": [
       { "speaker": "narasi", "text": "Kamu menutup laptop. Melipat tangan. Menyeringai ke langit-langit." },
@@ -920,16 +920,38 @@
 
   "tangga-pecah": {
     "id": "tangga-pecah",
-    "background": "kafe-tutup",
+    "background": "tangga",
     "character": null,
     "lines": [
       { "speaker": "narasi", "text": "Satu anak tangga. Kakimu tahu jalannya meski kamu belum pernah ke sini." },
       { "speaker": "narasi", "text": "Dua. Kamu tertawa. Tawa itu memantul di dinding sempit, kembali padamu — asing, seperti suara orang lain." },
       { "speaker": "narasi", "text": "Tiga. \"Kenapa aku tidak pernah naik?\" Karena, jauh di dalam, kamu takut tahu jawabannya." },
       { "speaker": "narasi", "text": "Empat. Tawamu pecah jadi sesuatu yang lain. Bukan tangis. Lebih buruk dari tangis." },
-      { "speaker": "narasi", "text": "Lima. Bau kopi hilang. Bau hujan hilang. Yang tersisa cuma suara langkahmu sendiri." },
+      { "speaker": "narasi", "text": "Lima. Bau kopi hilang. Bau hujan hilang. Yang tersisa cuma suara langkahmu sendiri." }
+    ],
+    "choices": [
+      { "text": "Naik anak tangga terakhir.", "nextNode": "tangga-puncak", "timeCost": 0 }
+    ]
+  },
+
+  "tangga-puncak": {
+    "id": "tangga-puncak",
+    "background": "lantai-dua",
+    "character": null,
+    "lines": [
       { "speaker": "narasi", "text": "Lantai dua. Gelap. Satu meja. Satu kursi. Sebuah laptop terbuka, kursornya berkedip dalam diam." },
-      { "speaker": "narasi", "text": "Di kursi itu — ada kamu. Versi yang tidak pernah turun. Yang memilih tinggal di atas sini, loop demi loop." },
+      { "speaker": "narasi", "text": "Di kursi itu — ada kamu. Versi yang tidak pernah turun. Yang memilih tinggal di atas sini, loop demi loop." }
+    ],
+    "choices": [
+      { "text": "Melangkah mendekat.", "nextNode": "tangga-konfrontasi", "timeCost": 0 }
+    ]
+  },
+
+  "tangga-konfrontasi": {
+    "id": "tangga-konfrontasi",
+    "background": "lantai-dua",
+    "character": "mc-doppelganger",
+    "lines": [
       { "speaker": "narasi", "text": "Dia menoleh. Wajahmu. Seringaimu. Matamu yang sudah lama padam." },
       { "speaker": "???", "text": "Akhirnya naik juga. Aku sudah menunggu... berapa, ya? Aku juga berhenti menghitung." },
       { "speaker": "narasi", "text": "Kamu berdiri di puncak tangga, menatap dirimu sendiri. Untuk pertama kalinya dalam ratusan hari, kamu harus memilih jadi siapa." }
