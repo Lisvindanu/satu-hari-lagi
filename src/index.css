@@ -146,6 +146,36 @@ body {
   to   { opacity: 0; transform: translateX(-50%) translateY(-8px); }
 }
 
+/* ── Madness degradation (scales with loop count) ── */
+.madness-vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 46;
+}
+.madness-vignette.m2 { box-shadow: inset 0 0 140px 40px rgba(0,0,0,0.45); }
+.madness-vignette.m3 { box-shadow: inset 0 0 180px 70px rgba(25,0,0,0.6); }
+.madness-vignette.m4 {
+  box-shadow: inset 0 0 220px 110px rgba(25,0,0,0.8);
+  animation: madnessPulse 4s ease-in-out infinite;
+}
+@keyframes madnessPulse {
+  0%, 100% { opacity: 0.7; }
+  50%      { opacity: 1; }
+}
+
+/* Subtle text unease at deep madness */
+.text-unease {
+  animation: textJitter 7s steps(1) infinite;
+}
+@keyframes textJitter {
+  0%, 90%, 100% { transform: translate(0, 0); }
+  91% { transform: translate(-0.6px, 0.4px); }
+  93% { transform: translate(0.5px, -0.5px); }
+  95% { transform: translate(-0.4px, 0); }
+  97% { transform: translate(0.4px, 0.4px); }
+}
+
 /* Clock pulse on tension */
 .clock-tense {
   animation: clockPulse 0.8s ease-in-out infinite;

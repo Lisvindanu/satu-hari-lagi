@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
-export default function DialogueBox({ node, onChoice, onLineChange, startLine = 0, hasClue, formatTime, time, loopCount, audio }) {
+export default function DialogueBox({ node, onChoice, onLineChange, startLine = 0, madness = 0, hasClue, formatTime, time, loopCount, audio }) {
   const [lineIndex, setLineIndex] = useState(() => Math.min(startLine, node.lines.length - 1));
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
@@ -140,7 +140,7 @@ export default function DialogueBox({ node, onChoice, onLineChange, startLine = 
               </div>
             )}
 
-            <p className={`text-lg leading-relaxed ${speakerColor} ink-text`}>
+            <p className={`text-lg leading-relaxed ${speakerColor} ink-text ${madness >= 3 ? 'text-unease' : ''}`}>
               {displayedText}
               {isTyping && <span className="cursor-blink" />}
             </p>

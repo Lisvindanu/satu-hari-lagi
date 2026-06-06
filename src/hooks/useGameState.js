@@ -3,6 +3,34 @@ import { useState, useCallback } from 'react';
 const INITIAL_TIME = 13 * 60; // 13:00 in minutes
 const DEATH_TIME = 15 * 60;   // 15:00 in minutes
 
+// Madness arc — the intro a loop starts on, escalating as the MC cracks
+function introNodeFor(loopCount) {
+  if (loopCount >= 8) return 'intro-hancur';
+  if (loopCount >= 6) return 'intro-pecah';
+  if (loopCount >= 4) return 'intro-retak';
+  if (loopCount >= 1) return 'intro';
+  return 'intro-first';
+}
+
+// Clues that accumulate automatically as loops pile up (memory + sanity)
+function withAutoClues(clues, loopCount) {
+  const c = [...clues];
+  if (loopCount >= 2 && !c.includes('loop-awareness')) c.push('loop-awareness');
+  if (loopCount >= 4 && !c.includes('deep-awareness')) c.push('deep-awareness');
+  if (loopCount >= 6 && !c.includes('retak')) c.push('retak');
+  if (loopCount >= 8 && !c.includes('hancur')) c.push('hancur');
+  return c;
+}
+
+// Madness level (0-4) for visual/audio degradation
+export function madnessLevel(loopCount) {
+  if (loopCount >= 8) return 4;
+  if (loopCount >= 6) return 3;
+  if (loopCount >= 4) return 2;
+  if (loopCount >= 1) return 1;
+  return 0;
+}
+
 const INITIAL_STATE = {
   currentNodeId: 'intro-first',
   currentLine: 0,
@@ -72,12 +100,11 @@ export default function useGameState() {
   const resetLoop = useCallback(() => {
     setState(prev => {
       const newLoopCount = prev.loopCount + 1;
-      const autoClues = [...prev.clues];
-      if (newLoopCount >= 2 && !autoClues.includes('loop-awareness')) autoClues.push('loop-awareness');
-      if (newLoopCount >= 4 && !autoClues.includes('deep-awareness')) autoClues.push('deep-awareness');
+      const autoClues = withAutoClues(prev.clues, newLoopCount);
       if (prev.endings.includes('terlambat') && !autoClues.includes('seen-terlambat')) autoClues.push('seen-terlambat');
       return {
         ...INITIAL_STATE,
+        currentNodeId: introNodeFor(newLoopCount),
         loopCount: newLoopCount,
         clues: autoClues,
         endings: prev.endings,
@@ -93,12 +120,10 @@ export default function useGameState() {
 
   // Hydrate saved progress while staying on the title screen (used after login)
   const setProgress = useCallback(({ clues = [], endings = [], loopCount = 0 }) => {
-    const autoClues = [...clues];
-    if (loopCount >= 2 && !autoClues.includes('loop-awareness')) autoClues.push('loop-awareness');
-    if (loopCount >= 4 && !autoClues.includes('deep-awareness')) autoClues.push('deep-awareness');
+    const autoClues = withAutoClues(clues, loopCount);
     setState(prev => ({
       ...prev,
-      currentNodeId: loopCount > 0 ? 'intro' : 'intro-first',
+      currentNodeId: introNodeFor(loopCount),
       currentLine: 0,
       time: INITIAL_TIME,
       loopCount,

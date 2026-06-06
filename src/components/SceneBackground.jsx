@@ -43,9 +43,15 @@ const BACKGROUNDS = {
   },
 };
 
-export default function SceneBackground({ backgroundId }) {
+const MADNESS_GRAYSCALE = [0, 0.1, 0.28, 0.5, 0.78];
+
+export default function SceneBackground({ backgroundId, madness = 0 }) {
   const bg = BACKGROUNDS[backgroundId] || BACKGROUNDS['cafe-siang'];
   const isOutdoor = backgroundId === 'perempatan' || backgroundId === 'perempatan-malam';
+  const baseFilter = bg.ambiance === 'cold'
+    ? 'saturate(0.5) brightness(0.65) contrast(1.2)'
+    : 'saturate(0.75) brightness(0.85) contrast(1.1)';
+  const gray = MADNESS_GRAYSCALE[Math.min(madness, 4)] || 0;
 
   return (
     <div key={backgroundId} className="fixed inset-0 z-0 scene-transition">
@@ -55,15 +61,16 @@ export default function SceneBackground({ backgroundId }) {
         className="absolute inset-0 w-full h-full object-cover"
         style={{
           imageRendering: 'pixelated',
-          filter: bg.ambiance === 'cold'
-            ? 'saturate(0.5) brightness(0.65) contrast(1.2)'
-            : 'saturate(0.75) brightness(0.85) contrast(1.1)',
+          filter: gray > 0 ? `${baseFilter} grayscale(${gray})` : baseFilter,
         }}
         draggable={false}
       />
 
-      {/* Scanline overlay */}
-      <div className="absolute inset-0 scanlines opacity-25" />
+      {/* Scanline overlay — heavier as madness grows */}
+      <div className="absolute inset-0 scanlines" style={{ opacity: 0.25 + madness * 0.08 }} />
+      {madness >= 4 && (
+        <div className="absolute inset-0 static-noise opacity-[0.06] pointer-events-none" />
+      )}
 
       {/* Rain for cold scenes */}
       {bg.ambiance === 'cold' && (

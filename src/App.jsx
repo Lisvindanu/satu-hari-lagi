@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import useGameState from './hooks/useGameState';
+import useGameState, { madnessLevel } from './hooks/useGameState';
 import useAudio from './hooks/useAudio';
 import useSpeedrun from './hooks/useSpeedrun';
 import dialogueData from './data/dialogue.json';
@@ -74,15 +74,16 @@ export default function App() {
     }
   }, [state.phase, currentNode, audio]);
 
-  // Heartbeat when time is running out
+  // Heartbeat when time is running out — starts earlier as madness deepens
   useEffect(() => {
-    if (state.phase === 'playing' && state.time >= TENSION_TIME && state.time < DEATH_TIME) {
-      const bpm = 80 + ((state.time - TENSION_TIME) / (DEATH_TIME - TENSION_TIME)) * 60;
+    const tensionStart = TENSION_TIME - madnessLevel(state.loopCount) * 15;
+    if (state.phase === 'playing' && state.time >= tensionStart && state.time < DEATH_TIME) {
+      const bpm = 80 + ((state.time - tensionStart) / (DEATH_TIME - tensionStart)) * 60;
       audio.startHeartbeat(bpm);
     } else {
       audio.stopHeartbeat();
     }
-  }, [state.time, state.phase, audio]);
+  }, [state.time, state.phase, state.loopCount, audio]);
 
   // Clue get notification
   useEffect(() => {
@@ -258,16 +259,19 @@ export default function App() {
   if (!currentNode) return null;
 
   const isTense = state.time >= TENSION_TIME;
+  const madness = madnessLevel(state.loopCount);
 
   return (
     <div className={`fixed inset-0 overflow-hidden ${isTense ? 'tense-vignette' : ''}`}>
-      <SceneBackground backgroundId={currentNode.background} />
+      <SceneBackground backgroundId={currentNode.background} madness={madness} />
       <CharacterSprite characterId={currentNode.character} />
+      {madness >= 2 && <div className={`madness-vignette m${madness}`} />}
       <DialogueBox
         node={currentNode}
         onChoice={handleChoice}
         onLineChange={setCurrentLine}
         startLine={state.currentLine}
+        madness={madness}
         hasClue={hasClue}
         formatTime={formatTime}
         time={state.time}

@@ -13,6 +13,8 @@ const CLUE_NAMES = {
   'loop-awareness': 'Kamu mulai ingat',
   'deep-awareness': 'Kamu ingat segalanya',
   'seen-terlambat': 'Memori: gagal',
+  'retak': 'Sesuatu dalam dirimu retak',
+  'hancur': 'Kamu tidak yakin lagi siapa kamu',
 };
 
 export default function ClueNotification({ clues }) {
