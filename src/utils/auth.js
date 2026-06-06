@@ -56,6 +56,25 @@ export async function loadSession() {
   }
 }
 
+// Hard reset account progress. mode 'full' also wipes the ending gallery.
+// Returns the server's authoritative progress, or null on failure.
+export async function resetProgress(mode = 'soft') {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const res = await fetch(`${API}/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, mode }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json().catch(() => ({}));
+    return data.progress || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function saveProgress({ clues, endings, loopCount }) {
   const token = getToken();
   if (!token) return false;

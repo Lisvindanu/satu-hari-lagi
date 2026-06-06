@@ -18,7 +18,7 @@ import EndingGallery from './components/EndingGallery';
 import AchievementNotification from './components/AchievementNotification';
 import AchievementGallery from './components/AchievementGallery';
 import { ACHIEVEMENTS, checkAchievements } from './data/achievements';
-import { register, login, loadSession, saveProgress, clearToken } from './utils/auth';
+import { register, login, loadSession, saveProgress, resetProgress, clearToken } from './utils/auth';
 
 const DEATH_TIME = 15 * 60;
 const TENSION_TIME = 14 * 60 + 30; // 14:30
@@ -162,6 +162,18 @@ export default function App() {
     setProgress({ clues: [], endings: [], loopCount: 0 });
   }, [setProgress]);
 
+  // Reset progress. mode 'full' wipes the ending gallery too; 'soft' keeps it.
+  const handleReset = useCallback(async (mode) => {
+    let progress = { clues: [], endings: mode === 'full' ? [] : state.endings, loopCount: 0 };
+    if (user) {
+      // Hard-clear server first so the auto-save merge can't restore old progress
+      const serverProgress = await resetProgress(mode);
+      if (serverProgress) progress = serverProgress;
+    }
+    prevAchievementsRef.current = checkAchievements(progress);
+    setProgress(progress);
+  }, [user, state.endings, setProgress]);
+
   const handleChoice = useCallback((choice) => {
     audio.playChoiceSelect();
 
@@ -213,6 +225,7 @@ export default function App() {
           user={user}
           onAuth={handleAuth}
           onLogout={handleLogout}
+          onReset={handleReset}
         />
         {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
         {showGallery && <EndingGallery unlockedEndings={state.endings} onClose={() => setShowGallery(false)} />}

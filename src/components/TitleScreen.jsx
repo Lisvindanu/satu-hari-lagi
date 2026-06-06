@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
-export default function TitleScreen({ onStart, loopCount, audio, onShowLeaderboard, onShowGallery, onShowAchievements, hasEndings, achievementCount, user, onAuth, onLogout }) {
+export default function TitleScreen({ onStart, loopCount, audio, onShowLeaderboard, onShowGallery, onShowAchievements, hasEndings, achievementCount, user, onAuth, onLogout, onReset }) {
   const [showAuth, setShowAuth] = useState(false);
   const [mode, setMode] = useState('login'); // login | register
   const [username, setUsername] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(null); // null | 'soft' | 'full'
 
   const handleStart = () => {
     if (audio) audio.playClick();
@@ -135,6 +136,50 @@ export default function TitleScreen({ onStart, loopCount, audio, onShowLeaderboa
             </div>
           )}
         </div>
+
+        {/* Reset progress */}
+        {(loopCount > 0 || hasEndings) && (
+          <div className="mt-6">
+            {confirmReset ? (
+              <div className="flex flex-col items-center gap-2 animate-fadeIn">
+                <p className="text-red-800/90 text-[10px] tracking-widest max-w-[280px] leading-relaxed">
+                  {confirmReset === 'full'
+                    ? 'hapus SEMUA progress — loop, petunjuk, ending gallery, pencapaian. tidak bisa dibatalkan.'
+                    : 'ulang dari loop nol. petunjuk & loop di-reset, ending gallery tetap tersimpan.'}
+                </p>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => { if (audio) audio.playClick(); onReset(confirmReset); setConfirmReset(null); }}
+                    className="text-red-700 text-xs tracking-widest hover:text-red-400 transition-colors cursor-pointer"
+                  >
+                    ya, lakukan
+                  </button>
+                  <button
+                    onClick={() => setConfirmReset(null)}
+                    className="text-gray-700 text-xs tracking-widest hover:text-gray-500 transition-colors cursor-pointer"
+                  >
+                    batal
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  onClick={() => setConfirmReset('soft')}
+                  className="text-gray-700 text-xs tracking-widest hover:text-amber-700 transition-colors cursor-pointer"
+                >
+                  ulang dari awal (simpan gallery)
+                </button>
+                <button
+                  onClick={() => setConfirmReset('full')}
+                  className="text-gray-800 text-[10px] tracking-widest hover:text-red-800 transition-colors cursor-pointer"
+                >
+                  hapus semua progress
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Ending gallery + Achievements + Leaderboard */}
         <div className="mt-8 flex flex-col items-center gap-3">

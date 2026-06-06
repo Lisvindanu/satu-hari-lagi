@@ -124,6 +124,21 @@ http.createServer(async (req, res) => {
     return send(res, 200, { ok: true, progress: { clues: acc.clues, endings: acc.endings, loopCount: acc.loopCount } });
   }
 
+  // ── Reset progress (hard set, no merge) ──
+  // mode 'full' wipes endings too; otherwise keeps the ending gallery
+  if (req.method === 'POST' && p === '/reset') {
+    let body; try { body = await readBody(req); } catch { return send(res, 400, { error: 'bad' }); }
+    const accounts = readAccounts();
+    const acc = findByToken(accounts, body.token);
+    if (!acc) return send(res, 401, { error: 'token invalid' });
+    acc.clues = [];
+    acc.loopCount = 0;
+    if (body.mode === 'full') acc.endings = [];
+    acc.updated = Date.now();
+    writeAccounts(accounts);
+    return send(res, 200, { ok: true, progress: { clues: acc.clues, endings: acc.endings, loopCount: acc.loopCount } });
+  }
+
   // ── Submit score (token-based, one best per user+ending) ──
   if (req.method === 'POST' && p === '/scores') {
     let body; try { body = await readBody(req); } catch { return send(res, 400, { error: 'bad' }); }
