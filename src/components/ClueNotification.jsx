@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 const CLUE_NAMES = {
+  'sadar-sosok': 'Ada orang asing di pojok kafe',
   'raka-ingat-loop': 'Raka ingat sesuatu',
   'raka-tau-sesuatu': 'Raka menyimpan rahasia',
   'segfault-clue': 'Log sistem aneh',

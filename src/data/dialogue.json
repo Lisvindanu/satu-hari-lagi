@@ -190,7 +190,7 @@
     ],
     "choices": [
       { "text": "Kembali ke meja", "nextNode": "fokus-proyek", "timeCost": 15 },
-      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 }
+      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10, "requiresClue": "sadar-sosok" }
     ]
   },
 
@@ -205,7 +205,7 @@
       { "speaker": "narasi", "text": "Kamu merasa dingin meskipun kafe ini hangat." }
     ],
     "choices": [
-      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 },
+      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10, "requiresClue": "sadar-sosok" },
       { "text": "Keluar kafe, cek jalanan", "nextNode": "cek-jalan", "timeCost": 20 }
     ]
   },
@@ -222,7 +222,7 @@
     ],
     "choices": [
       { "text": "\"Berapa kali ini sudah terjadi?\"", "nextNode": "raka-berapa-kali", "timeCost": 10, "givesClue": "banyak-loop" },
-      { "text": "Lihat sosok di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 }
+      { "text": "Lihat sosok di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10, "requiresClue": "sadar-sosok" }
     ]
   },
 
@@ -237,7 +237,7 @@
     ],
     "choices": [
       { "text": "\"Truk apa?\"", "nextNode": "cek-jalan", "timeCost": 15, "givesClue": "kecelakaan-jam-3" },
-      { "text": "Lihat sosok di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 },
+      { "text": "Lihat sosok di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10, "requiresClue": "sadar-sosok" },
       { "text": "Keluar kafe, cek jalanan", "nextNode": "cek-jalan", "timeCost": 20 }
     ]
   },
@@ -259,7 +259,7 @@
     "choices": [
       { "text": "Periksa terminal lebih lanjut", "nextNode": "terminal-clue", "timeCost": 15, "givesClue": "segfault-clue" },
       { "text": "Abaikan, lanjut coding", "nextNode": "abaikan-coding", "timeCost": 30 },
-      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10 },
+      { "text": "Perhatikan orang di sudut kafe", "nextNode": "lihat-sosok", "timeCost": 10, "requiresClue": "sadar-sosok" },
       { "text": "Tutup laptop. Berhenti.", "nextNode": "acceptance-scene", "timeCost": 0, "requiresClue": "deep-awareness" },
       { "text": "Diam. Ingat semuanya.", "nextNode": "ending-ingat", "timeCost": 0, "requiresClue": "deep-awareness" }
     ]
@@ -277,7 +277,7 @@
       { "speaker": "narasi", "text": "Ini bukan log dari aplikasimu. Ini log dari sesuatu yang menjalankan... ini." }
     ],
     "choices": [
-      { "text": "Tunjukkan ke orang di sudut kafe", "nextNode": "tunjuk-sosok-terminal", "timeCost": 10, "requiresClue": "segfault-clue" },
+      { "text": "Tunjukkan ke orang di sudut kafe", "nextNode": "tunjuk-sosok-terminal", "timeCost": 10, "requiresClue": "sadar-sosok" },
       { "text": "Pesan kopi, tenangkan diri", "nextNode": "pesan-kopi", "timeCost": 15 },
       { "text": "Keluar kafe, cek jalanan", "nextNode": "cek-jalan", "timeCost": 20 },
       { "text": "Coba modifikasi log-nya", "nextNode": "hack-terminal", "timeCost": 20, "requiresClue": "loop-awareness" }
@@ -305,16 +305,18 @@
     "background": "cafe-siang",
     "character": null,
     "lines": [
-      { "speaker": "narasi", "text": "Kafe ini kecil tapi nyaman. 6 meja, sebagian besar kosong." },
-      { "speaker": "narasi", "text": "Di counter, barista bernama Raka sedang mengusap gelas." },
-      { "speaker": "narasi", "text": "Di sudut belakang, ada seseorang berjaket tebal — aneh untuk cuaca siang. Dia sibuk main game di HP-nya." },
-      { "speaker": "narasi", "text": "Musik lo-fi mengalun pelan dari speaker kafe." }
+      { "speaker": "narasi", "text": "Kamu mengangkat pandangan dari laptop. Kafe ini kecil tapi nyaman — enam meja, sebagian besar kosong." },
+      { "speaker": "narasi", "text": "Di counter, barista bernama Raka sedang mengusap gelas. Musik lo-fi mengalun pelan dari speaker." },
+      { "speaker": "narasi", "text": "Kamu memutar kursi pelan, menyapu pandang ke seluruh ruangan. Hangat. Biasa. Aman." },
+      { "speaker": "narasi", "text": "Lalu matamu berhenti di sudut paling belakang." },
+      { "speaker": "narasi", "text": "Ada seseorang di sana. Jaket tebal, hoodie menutup wajah — di tengah siang yang hangat. Sejak kapan dia di situ?" },
+      { "speaker": "narasi", "text": "Punggungmu menegang. Entah kenapa, kamu yakin dia sedang menatapmu dari balik bayang itu." }
     ],
     "choices": [
-      { "text": "Hampiri barista", "nextNode": "pesan-kopi", "timeCost": 10 },
-      { "text": "Dekati orang berjaket", "nextNode": "lihat-sosok", "timeCost": 10 },
-      { "text": "Fokus ngerjain proyek", "nextNode": "fokus-proyek", "timeCost": 30 },
-      { "text": "Keluar, jalan ke perempatan depan", "nextNode": "perempatan-menunggu", "timeCost": 15 }
+      { "text": "Hampiri barista", "nextNode": "pesan-kopi", "timeCost": 10, "givesClue": "sadar-sosok" },
+      { "text": "Dekati orang berjaket", "nextNode": "lihat-sosok", "timeCost": 10, "givesClue": "sadar-sosok" },
+      { "text": "Fokus ngerjain proyek", "nextNode": "fokus-proyek", "timeCost": 30, "givesClue": "sadar-sosok" },
+      { "text": "Keluar, jalan ke perempatan depan", "nextNode": "perempatan-menunggu", "timeCost": 15, "givesClue": "sadar-sosok" }
     ]
   },
 
@@ -328,8 +330,8 @@
       { "speaker": "narasi", "text": "Orang berjaket di sudut sudah menaruh HP-nya. Dia menatapmu." }
     ],
     "choices": [
-      { "text": "Dekati orang berjaket", "nextNode": "sosok-sore", "timeCost": 10 },
-      { "text": "Tanya Raka kenapa dia diam", "nextNode": "raka-sore", "timeCost": 10 }
+      { "text": "Dekati orang berjaket", "nextNode": "sosok-sore", "timeCost": 10, "givesClue": "sadar-sosok" },
+      { "text": "Tanya Raka kenapa dia diam", "nextNode": "raka-sore", "timeCost": 10, "givesClue": "sadar-sosok" }
     ]
   },
 
