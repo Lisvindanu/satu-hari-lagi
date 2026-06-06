@@ -249,7 +249,7 @@ export default function App() {
     return (
       <>
         <EndingScreen
-          endingId={state.endings[state.endings.length - 1]}
+          endingId={state.currentEnding}
           loopCount={state.loopCount}
           onRestart={() => { speedrun.start(); resetLoop(); }}
           onContinue={(nodeId, time) => { speedrun.start(); setEndingElapsed(null); continueFromEnding(nodeId, time); }}
@@ -260,7 +260,7 @@ export default function App() {
         />
         {showLeaderboard && (
           <Leaderboard
-            endingId={state.endings[state.endings.length - 1]}
+            endingId={state.currentEnding}
             onClose={() => setShowLeaderboard(false)}
           />
         )}

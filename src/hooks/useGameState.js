@@ -40,8 +40,10 @@ const INITIAL_STATE = {
   clues: [],
   // Flags for current loop only
   flags: {},
-  // Which endings have been seen
+  // Which endings have been seen (deduped, for the gallery)
   endings: [],
+  // The ending currently being shown (the one just reached)
+  currentEnding: null,
   // Game phase
   phase: 'title', // title | playing | glitch | dead | ending
 };
@@ -149,6 +151,7 @@ export default function useGameState() {
     setState(prev => ({
       ...prev,
       phase: 'ending',
+      currentEnding: endingId,
       endings: prev.endings.includes(endingId)
         ? prev.endings
         : [...prev.endings, endingId],
