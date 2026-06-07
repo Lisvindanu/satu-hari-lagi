@@ -1,6 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { TEXT_SPEEDS } from '../hooks/useSettings';
 
-export default function DialogueBox({ node, onChoice, onLineChange, startLine = 0, madness = 0, hasClue, formatTime, time, loopCount, audio }) {
+export default function DialogueBox({
+  node, onChoice, onLineChange, startLine = 0, madness = 0, hasClue,
+  formatTime, time, loopCount, audio,
+  settings = {}, onHistory, isLineSeen, markLineSeen,
+}) {
   const [lineIndex, setLineIndex] = useState(() => Math.min(startLine, node.lines.length - 1));
   const [displayedText, setDisplayedText] = useState('');
   const [isTyping, setIsTyping] = useState(true);
@@ -9,8 +14,11 @@ export default function DialogueBox({ node, onChoice, onLineChange, startLine = 
   const tickCounterRef = useRef(0);
   const clickLockRef = useRef(false);
   const mountedNodeRef = useRef(node.id);
+  const lastPushedRef = useRef(null);
+  const autoTimerRef = useRef(null);
 
   const currentLine = node.lines[lineIndex];
+  const reduceMotion = !!settings.reduceMotion;
 
   // Reset only when the node actually changes (not on first mount / resume)
   useEffect(() => {
@@ -27,9 +35,29 @@ export default function DialogueBox({ node, onChoice, onLineChange, startLine = 
     if (onLineChange) onLineChange(lineIndex);
   }, [lineIndex, onLineChange]);
 
-  // Typewriter effect
+  // Push the line into the session backlog once when it first appears
   useEffect(() => {
     if (!currentLine) return;
+    const key = `${node.id}:${lineIndex}`;
+    if (lastPushedRef.current !== key) {
+      lastPushedRef.current = key;
+      if (onHistory) onHistory({ speaker: currentLine.speaker, text: currentLine.text });
+    }
+  }, [node.id, lineIndex, currentLine, onHistory]);
+
+  // Typewriter effect — speed comes from settings; instant or already-seen skips it
+  useEffect(() => {
+    if (!currentLine) return;
+
+    const speed = TEXT_SPEEDS[settings.textSpeed] ?? TEXT_SPEEDS.normal;
+    const seen = settings.skipRead && isLineSeen && isLineSeen(`${node.id}:${lineIndex}`);
+
+    if (speed === 0 || seen) {
+      setDisplayedText(currentLine.text);
+      setIsTyping(false);
+      const t = setTimeout(() => setCanAdvance(true), seen ? 0 : 150);
+      return () => clearTimeout(t);
+    }
 
     setIsTyping(true);
     setCanAdvance(false);
@@ -49,16 +77,28 @@ export default function DialogueBox({ node, onChoice, onLineChange, startLine = 
       } else {
         setIsTyping(false);
         clearInterval(interval);
-        // Small delay before allowing advance — prevents accidental skip
         setTimeout(() => setCanAdvance(true), 400);
       }
-    }, 25);
+    }, speed);
 
     return () => clearInterval(interval);
-  }, [lineIndex, currentLine, audio]);
+  }, [lineIndex, currentLine, audio, settings.textSpeed, settings.skipRead, isLineSeen, node.id]);
+
+  // Move forward: next line, or reveal choices / trigger terminal nodes
+  const advance = useCallback(() => {
+    if (currentLine && markLineSeen) markLineSeen(`${node.id}:${lineIndex}`);
+    if (lineIndex < node.lines.length - 1) {
+      setLineIndex(prev => prev + 1);
+    } else if (node.choices && node.choices.length > 0) {
+      setShowChoices(true);
+    } else if (node.triggerDeath) {
+      onChoice({ triggerDeath: true });
+    } else if (node.ending) {
+      onChoice({ ending: node.ending });
+    }
+  }, [currentLine, markLineSeen, node, lineIndex, onChoice]);
 
   const handleClick = useCallback(() => {
-    // Double-click guard
     if (clickLockRef.current) return;
     clickLockRef.current = true;
     setTimeout(() => { clickLockRef.current = false; }, 350);
@@ -74,23 +114,42 @@ export default function DialogueBox({ node, onChoice, onLineChange, startLine = 
     }
 
     if (!canAdvance) return;
+    advance();
+  }, [isTyping, canAdvance, currentLine, advance, audio]);
 
-    if (lineIndex < node.lines.length - 1) {
-      setLineIndex(prev => prev + 1);
-    } else {
-      if (node.choices && node.choices.length > 0) {
-        setShowChoices(true);
-      } else if (node.triggerDeath) {
-        onChoice({ triggerDeath: true });
-      } else if (node.ending) {
-        onChoice({ ending: node.ending });
-      }
+  // Auto-advance — when enabled, progress lines automatically after a delay
+  useEffect(() => {
+    if (autoTimerRef.current) { clearTimeout(autoTimerRef.current); autoTimerRef.current = null; }
+    if (settings.autoAdvance && !isTyping && canAdvance && !showChoices) {
+      const delay = settings.autoDelay ?? 1600;
+      autoTimerRef.current = setTimeout(() => advance(), delay);
     }
-  }, [isTyping, canAdvance, lineIndex, node, currentLine, onChoice, audio]);
+    return () => { if (autoTimerRef.current) clearTimeout(autoTimerRef.current); };
+  }, [settings.autoAdvance, settings.autoDelay, isTyping, canAdvance, showChoices, advance]);
 
   const availableChoices = (node.choices || []).filter(c =>
     !c.requiresClue || hasClue(c.requiresClue)
   );
+
+  // Keyboard: space/enter/→ to advance, number keys to pick a choice
+  useEffect(() => {
+    const onKey = (e) => {
+      if (showChoices) {
+        const n = parseInt(e.key, 10);
+        if (n >= 1 && n <= availableChoices.length) {
+          e.preventDefault();
+          onChoice(availableChoices[n - 1]);
+        }
+        return;
+      }
+      if (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleClick();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showChoices, availableChoices, onChoice, handleClick]);
 
   const speakerColor = currentLine?.speaker === 'narasi'
     ? 'text-gray-400 italic'
@@ -98,22 +157,24 @@ export default function DialogueBox({ node, onChoice, onLineChange, startLine = 
       ? 'text-red-400'
       : 'text-amber-300';
 
-  // Tension: only apply red/pulse on loop > 0
   const isTense = loopCount > 0 && time >= 14 * 60 + 30;
   const clockColor = isTense
     ? 'text-red-500 clock-tense'
     : 'text-gray-300';
 
-  // Progress: current line out of total
   const progress = node.lines.length > 1
     ? ((lineIndex) / (node.lines.length - 1)) * 100
     : 100;
 
+  const textSize = settings.largeText ? 'text-xl sm:text-2xl' : 'text-lg';
+  const unease = madness >= 3 && !reduceMotion ? 'text-unease' : '';
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
-      {/* Clock — top center, more prominent */}
+      {/* Clock — top center */}
       <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 text-sm tracking-[0.5em] font-mono select-none px-3 py-1 bg-black/50 backdrop-blur-sm ${clockColor}`}>
         {formatTime(time)}
+        {loopCount > 0 && <span className="text-gray-600 ml-3 text-xs tracking-normal">loop {loopCount + 1}</span>}
       </div>
 
       {/* Progress line */}
@@ -140,7 +201,7 @@ export default function DialogueBox({ node, onChoice, onLineChange, startLine = 
               </div>
             )}
 
-            <p className={`text-lg leading-relaxed ${speakerColor} ink-text ${madness >= 3 ? 'text-unease' : ''}`}>
+            <p className={`${textSize} leading-relaxed ${speakerColor} ink-text ${unease}`}>
               {displayedText}
               {isTyping && <span className="cursor-blink" />}
             </p>

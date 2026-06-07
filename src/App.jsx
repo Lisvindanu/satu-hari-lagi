@@ -2,10 +2,13 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import useGameState, { madnessLevel } from './hooks/useGameState';
 import useAudio from './hooks/useAudio';
 import useSpeedrun from './hooks/useSpeedrun';
+import useSettings from './hooks/useSettings';
 import dialogueData from './data/dialogue.json';
 import LandingScreen from './components/LandingScreen';
 import TitleScreen from './components/TitleScreen';
 import PauseMenu from './components/PauseMenu';
+import SettingsPanel from './components/SettingsPanel';
+import Backlog from './components/Backlog';
 import DialogueBox from './components/DialogueBox';
 import SceneBackground from './components/SceneBackground';
 import CharacterSprite from './components/CharacterSprite';
@@ -18,7 +21,7 @@ import EndingGallery from './components/EndingGallery';
 import AchievementNotification from './components/AchievementNotification';
 import AchievementGallery from './components/AchievementGallery';
 import { ACHIEVEMENTS, checkAchievements } from './data/achievements';
-import { register, login, loadSession, saveProgress, resetProgress, clearToken } from './utils/auth';
+import { register, login, loadSession, saveProgress, resetProgress, clearToken, saveRun, clearRun } from './utils/auth';
 
 const DEATH_TIME = 15 * 60;
 const TENSION_TIME = 14 * 60 + 30; // 14:30
@@ -42,6 +45,7 @@ export default function App() {
 
   const audio = useAudio();
   const speedrun = useSpeedrun();
+  const { settings, updateSetting } = useSettings();
   const prevBgRef = useRef(null);
   const prevClueCountRef = useRef(0);
   const prevPhaseRef = useRef('title');
@@ -55,8 +59,24 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [entered, setEntered] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showBacklog, setShowBacklog] = useState(false);
+  const [history, setHistory] = useState([]);
+  const seenLinesRef = useRef(new Set());
 
   const currentNode = dialogueData[state.currentNodeId];
+
+  const pushHistory = useCallback((entry) => {
+    setHistory(prev => {
+      const last = prev[prev.length - 1];
+      if (last && last.text === entry.text && last.speaker === entry.speaker) return prev;
+      const next = [...prev, entry];
+      return next.length > 200 ? next.slice(next.length - 200) : next;
+    });
+  }, []);
+
+  const isLineSeen = useCallback((key) => seenLinesRef.current.has(key), []);
+  const markLineSeen = useCallback((key) => { seenLinesRef.current.add(key); }, []);
 
   // Ambience based on background
   useEffect(() => {
@@ -130,13 +150,25 @@ export default function App() {
     setAchievementQueue(q => q.slice(1));
   }, []);
 
+  // Esc — close open overlays, else toggle pause while playing
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (showSettings) { setShowSettings(false); return; }
+      if (showBacklog) { setShowBacklog(false); return; }
+      if (state.phase === 'playing') setPaused(p => !p);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showSettings, showBacklog, state.phase]);
+
   // Auto-login from stored token on mount
   useEffect(() => {
     let cancelled = false;
     loadSession().then(session => {
       if (cancelled || !session) return;
       setUser({ username: session.username });
-      setProgress(session.progress);
+      setProgress({ ...session.progress, run: session.run });
     });
     return () => { cancelled = true; };
   }, [setProgress]);
@@ -148,11 +180,27 @@ export default function App() {
     }
   }, [state.endings, state.clues, state.loopCount, user]);
 
+  // Save current-run position (debounced) so reload / another device can resume it
+  useEffect(() => {
+    if (!user || state.phase !== 'playing') return;
+    const t = setTimeout(() => {
+      saveRun({ nodeId: state.currentNodeId, line: state.currentLine, time: state.time });
+    }, 800);
+    return () => clearTimeout(t);
+  }, [user, state.phase, state.currentNodeId, state.currentLine, state.time]);
+
+  // Clear the saved run once a loop terminates (ending or death) — nothing to resume
+  useEffect(() => {
+    if (user && (state.phase === 'ending' || state.phase === 'dead')) {
+      clearRun();
+    }
+  }, [user, state.phase]);
+
   const handleAuth = useCallback(async (mode, username, pin) => {
     const result = mode === 'register' ? await register(username, pin) : await login(username, pin);
     if (result.error) return result.error;
     setUser({ username: result.username });
-    setProgress(result.progress);
+    setProgress({ ...result.progress, run: result.run });
     return null;
   }, [setProgress]);
 
@@ -220,6 +268,7 @@ export default function App() {
           onShowLeaderboard={() => setShowLeaderboard(true)}
           onShowGallery={() => setShowGallery(true)}
           onShowAchievements={() => setShowAchievements(true)}
+          onShowSettings={() => setShowSettings(true)}
           hasEndings={state.endings.length > 0}
           achievementCount={unlockedAchievementIds.length}
           user={user}
@@ -230,6 +279,14 @@ export default function App() {
         {showLeaderboard && <Leaderboard onClose={() => setShowLeaderboard(false)} />}
         {showGallery && <EndingGallery unlockedEndings={state.endings} onClose={() => setShowGallery(false)} />}
         {showAchievements && <AchievementGallery unlockedIds={unlockedAchievementIds} onClose={() => setShowAchievements(false)} />}
+        {showSettings && (
+          <SettingsPanel
+            settings={settings}
+            updateSetting={updateSetting}
+            audio={audio}
+            onClose={() => setShowSettings(false)}
+          />
+        )}
       </>
     );
   }
@@ -275,10 +332,10 @@ export default function App() {
   const madness = madnessLevel(state.loopCount);
 
   return (
-    <div className={`fixed inset-0 overflow-hidden ${isTense ? 'tense-vignette' : ''}`}>
+    <div className={`fixed inset-0 overflow-hidden ${isTense && !settings.reduceMotion ? 'tense-vignette' : ''}`}>
       <SceneBackground backgroundId={currentNode.background} madness={madness} />
       <CharacterSprite characterId={currentNode.character} />
-      {madness >= 2 && <div className={`madness-vignette m${madness}`} />}
+      {madness >= 2 && !settings.reduceMotion && <div className={`madness-vignette m${madness}`} />}
       <DialogueBox
         node={currentNode}
         onChoice={handleChoice}
@@ -290,6 +347,10 @@ export default function App() {
         time={state.time}
         loopCount={state.loopCount}
         audio={audio}
+        settings={settings}
+        onHistory={pushHistory}
+        isLineSeen={isLineSeen}
+        markLineSeen={markLineSeen}
       />
       <ClueNotification clues={state.clues} />
       <AchievementNotification achievement={achievementQueue[0] || null} onDismiss={dismissAchievement} />
@@ -303,9 +364,23 @@ export default function App() {
       {paused && (
         <PauseMenu
           audio={audio}
+          lang={settings.language}
           onResume={() => setPaused(false)}
+          onSettings={() => setShowSettings(true)}
+          onBacklog={() => setShowBacklog(true)}
           onQuit={() => { setPaused(false); speedrun.stop(); quitToTitle(); }}
         />
+      )}
+      {showSettings && (
+        <SettingsPanel
+          settings={settings}
+          updateSetting={updateSetting}
+          audio={audio}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
+      {showBacklog && (
+        <Backlog history={history} lang={settings.language} onClose={() => setShowBacklog(false)} />
       )}
     </div>
   );

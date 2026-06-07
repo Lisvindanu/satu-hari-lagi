@@ -120,14 +120,16 @@ export default function useGameState() {
     setState(prev => ({ ...prev, phase: 'playing' }));
   }, []);
 
-  // Hydrate saved progress while staying on the title screen (used after login)
-  const setProgress = useCallback(({ clues = [], endings = [], loopCount = 0 }) => {
+  // Hydrate saved progress while staying on the title screen (used after login).
+  // An optional `run` restores the exact mid-loop position so LANJUTKAN resumes it.
+  const setProgress = useCallback(({ clues = [], endings = [], loopCount = 0, run = null }) => {
     const autoClues = withAutoClues(clues, loopCount);
+    const valid = run && typeof run.nodeId === 'string';
     setState(prev => ({
       ...prev,
-      currentNodeId: introNodeFor(loopCount),
-      currentLine: 0,
-      time: INITIAL_TIME,
+      currentNodeId: valid ? run.nodeId : introNodeFor(loopCount),
+      currentLine: valid ? (run.line || 0) : 0,
+      time: valid && Number.isFinite(run.time) ? run.time : INITIAL_TIME,
       loopCount,
       clues: autoClues,
       endings,

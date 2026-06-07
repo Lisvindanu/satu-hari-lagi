@@ -58,6 +58,41 @@ function readBody(req) {
 
 const send = (res, code, obj) => { res.writeHead(code, HEADERS); res.end(JSON.stringify(obj)); };
 
+// ── In-memory rate limiter (per IP + bucket) ──
+const rateBuckets = new Map();
+function clientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (fwd) return String(fwd).split(',')[0].trim();
+  return req.socket.remoteAddress || 'unknown';
+}
+// Returns true if the request is allowed, false if the limit is exceeded.
+function rateLimit(req, bucket, max, windowMs) {
+  const key = bucket + ':' + clientIp(req);
+  const now = Date.now();
+  const entry = rateBuckets.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateBuckets.set(key, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (entry.count >= max) return false;
+  entry.count++;
+  return true;
+}
+// Periodically purge expired buckets so the map can't grow unbounded
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of rateBuckets) if (now > entry.resetAt) rateBuckets.delete(key);
+}, 60000).unref();
+
+// Validate a saved-run payload (current-loop position for cross-device resume)
+function sanitizeRun(body) {
+  const nodeId = typeof body.nodeId === 'string' ? body.nodeId.slice(0, 80) : null;
+  if (!nodeId) return null;
+  const line = Number.isFinite(body.line) ? Math.max(0, Math.min(999, Math.floor(body.line))) : 0;
+  const time = Number.isFinite(body.time) ? Math.max(0, Math.min(2000, Math.floor(body.time))) : 780;
+  return { nodeId, line, time, updated: Date.now() };
+}
+
 http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') { res.writeHead(204, HEADERS); res.end(); return; }
   const url = new URL(req.url, `http://localhost:${PORT}`);
@@ -75,6 +110,7 @@ http.createServer(async (req, res) => {
 
   // ── Register ──
   if (req.method === 'POST' && p === '/register') {
+    if (!rateLimit(req, 'register', 5, 60000)) return send(res, 429, { error: 'terlalu sering, coba lagi nanti' });
     let body; try { body = await readBody(req); } catch { return send(res, 400, { error: 'bad' }); }
     const username = String(body.username || '').trim();
     const pin = String(body.pin || '');
@@ -85,13 +121,14 @@ http.createServer(async (req, res) => {
     if (accounts[key]) return send(res, 409, { error: 'username sudah dipakai' });
     const salt = crypto.randomBytes(8).toString('hex');
     const token = newToken();
-    accounts[key] = { username, salt, pinHash: hashPin(pin, salt), token, clues: [], endings: [], loopCount: 0, created: Date.now(), updated: Date.now() };
+    accounts[key] = { username, salt, pinHash: hashPin(pin, salt), token, clues: [], endings: [], loopCount: 0, run: null, created: Date.now(), updated: Date.now() };
     writeAccounts(accounts);
-    return send(res, 201, { token, username, progress: { clues: [], endings: [], loopCount: 0 } });
+    return send(res, 201, { token, username, progress: { clues: [], endings: [], loopCount: 0 }, run: null });
   }
 
   // ── Login ──
   if (req.method === 'POST' && p === '/login') {
+    if (!rateLimit(req, 'login', 10, 60000)) return send(res, 429, { error: 'terlalu sering, coba lagi nanti' });
     let body; try { body = await readBody(req); } catch { return send(res, 400, { error: 'bad' }); }
     const username = String(body.username || '').trim();
     const pin = String(body.pin || '');
@@ -99,18 +136,32 @@ http.createServer(async (req, res) => {
     const acc = accounts[username.toLowerCase()];
     if (!acc || acc.pinHash !== hashPin(pin, acc.salt)) return send(res, 401, { error: 'username atau pin salah' });
     if (!acc.token) { acc.token = newToken(); writeAccounts(accounts); }
-    return send(res, 200, { token: acc.token, username: acc.username, progress: { clues: acc.clues, endings: acc.endings, loopCount: acc.loopCount } });
+    return send(res, 200, { token: acc.token, username: acc.username, progress: { clues: acc.clues, endings: acc.endings, loopCount: acc.loopCount }, run: acc.run || null });
   }
 
   // ── Get progress (auto-login via token) ──
   if (req.method === 'GET' && p === '/progress') {
     const acc = findByToken(readAccounts(), url.searchParams.get('token'));
     if (!acc) return send(res, 401, { error: 'token invalid' });
-    return send(res, 200, { username: acc.username, progress: { clues: acc.clues, endings: acc.endings, loopCount: acc.loopCount } });
+    return send(res, 200, { username: acc.username, progress: { clues: acc.clues, endings: acc.endings, loopCount: acc.loopCount }, run: acc.run || null });
+  }
+
+  // ── Save current-run position (cross-device resume) ──
+  if (req.method === 'POST' && p === '/run') {
+    if (!rateLimit(req, 'run', 120, 60000)) return send(res, 429, { error: 'terlalu sering' });
+    let body; try { body = await readBody(req); } catch { return send(res, 400, { error: 'bad' }); }
+    const accounts = readAccounts();
+    const acc = findByToken(accounts, body.token);
+    if (!acc) return send(res, 401, { error: 'token invalid' });
+    acc.run = body.clear ? null : sanitizeRun(body);
+    acc.updated = Date.now();
+    writeAccounts(accounts);
+    return send(res, 200, { ok: true });
   }
 
   // ── Save progress (merge — progress only grows) ──
   if (req.method === 'POST' && p === '/progress') {
+    if (!rateLimit(req, 'progress', 60, 60000)) return send(res, 429, { error: 'terlalu sering' });
     let body; try { body = await readBody(req); } catch { return send(res, 400, { error: 'bad' }); }
     const accounts = readAccounts();
     const acc = findByToken(accounts, body.token);
@@ -127,6 +178,7 @@ http.createServer(async (req, res) => {
   // ── Reset progress (hard set, no merge) ──
   // mode 'full' wipes endings too; otherwise keeps the ending gallery
   if (req.method === 'POST' && p === '/reset') {
+    if (!rateLimit(req, 'reset', 5, 60000)) return send(res, 429, { error: 'terlalu sering' });
     let body; try { body = await readBody(req); } catch { return send(res, 400, { error: 'bad' }); }
     const accounts = readAccounts();
     const acc = findByToken(accounts, body.token);
@@ -141,6 +193,7 @@ http.createServer(async (req, res) => {
 
   // ── Submit score (token-based, one best per user+ending) ──
   if (req.method === 'POST' && p === '/scores') {
+    if (!rateLimit(req, 'scores', 20, 60000)) return send(res, 429, { error: 'terlalu sering' });
     let body; try { body = await readBody(req); } catch { return send(res, 400, { error: 'bad' }); }
     const { token, ending, time_ms, loop_count } = body;
     if (!VALID_ENDINGS.has(ending) || typeof time_ms !== 'number' || typeof loop_count !== 'number' || time_ms < 0 || time_ms > 7200000) {

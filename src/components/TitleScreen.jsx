@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function TitleScreen({ onStart, loopCount, audio, onShowLeaderboard, onShowGallery, onShowAchievements, hasEndings, achievementCount, user, onAuth, onLogout, onReset }) {
+export default function TitleScreen({ onStart, loopCount, audio, onShowLeaderboard, onShowGallery, onShowAchievements, onShowSettings, hasEndings, achievementCount, user, onAuth, onLogout, onReset }) {
   const [showAuth, setShowAuth] = useState(false);
   const [mode, setMode] = useState('login'); // login | register
   const [username, setUsername] = useState('');
@@ -202,6 +202,12 @@ export default function TitleScreen({ onStart, loopCount, audio, onShowLeaderboa
             className="text-gray-700 text-xs tracking-widest hover:text-gray-500 transition-colors cursor-pointer"
           >
             speedrun leaderboard
+          </button>
+          <button
+            onClick={onShowSettings}
+            className="text-gray-700 text-xs tracking-widest hover:text-amber-700 transition-colors cursor-pointer"
+          >
+            pengaturan
           </button>
         </div>
 

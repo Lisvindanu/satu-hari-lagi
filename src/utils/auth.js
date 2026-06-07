@@ -26,7 +26,7 @@ export async function register(username, pin) {
     const { ok, data } = await post('/register', { username, pin });
     if (!ok) return { error: data.error || 'gagal daftar' };
     saveToken(data.token);
-    return { username: data.username, progress: data.progress };
+    return { username: data.username, progress: data.progress, run: data.run || null };
   } catch {
     return { error: 'koneksi gagal' };
   }
@@ -37,7 +37,7 @@ export async function login(username, pin) {
     const { ok, data } = await post('/login', { username, pin });
     if (!ok) return { error: data.error || 'gagal login' };
     saveToken(data.token);
-    return { username: data.username, progress: data.progress };
+    return { username: data.username, progress: data.progress, run: data.run || null };
   } catch {
     return { error: 'koneksi gagal' };
   }
@@ -72,6 +72,37 @@ export async function resetProgress(mode = 'soft') {
     return data.progress || null;
   } catch {
     return null;
+  }
+}
+
+// Persist the current-loop position so the run can resume on reload / another device.
+export async function saveRun(run) {
+  const token = getToken();
+  if (!token) return false;
+  try {
+    const res = await fetch(`${API}/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, ...run }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function clearRun() {
+  const token = getToken();
+  if (!token) return false;
+  try {
+    const res = await fetch(`${API}/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, clear: true }),
+    });
+    return res.ok;
+  } catch {
+    return false;
   }
 }
 
