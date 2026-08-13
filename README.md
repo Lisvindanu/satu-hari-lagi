@@ -2,7 +2,7 @@
 
 Visual novel bertema time loop, berlatar Bandung. Seorang mahasiswa terjebak mengulang hari yang sama, dan satu-satunya jalan keluar adalah memahami kenapa hari itu tidak mau berakhir.
 
-75 node dialog bercabang, 18 ending, 20 achievement.
+75 node dialog bercabang, 19 ending, 20 achievement.
 
 ## Menjalankan secara lokal
 
